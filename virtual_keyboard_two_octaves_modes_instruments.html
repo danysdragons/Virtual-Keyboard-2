@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtual Keyboard — 3 Octaves • Modes • Instruments • Pure Tones</title>
+  <style>
+    :root{
+      --white-w: 48px;   /* width of white keys */
+      --white-h: 200px;  /* height of white keys */
+      --black-w: 30px;   /* width of black keys */
+      --black-h: 120px;  /* height of black keys */
+      --active: #5cc6ff;
+    }
+    body{ font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"; margin:0; padding:18px; background:#0b0e11; color:#eaeef2; }
+    h1{ font-size:20px; margin:0 0 10px; letter-spacing:0.3px; }
+    .panel{ display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:12px; border-radius:12px; background:#12171c; box-shadow: 0 1px 0 #000 inset, 0 0 0 1px #1b232c; }
+    .panel label{ font-size:14px; color:#c9d4df; }
+    select, input[type="range"], button{ background:#0e1318; color:#e6edf4; border:1px solid #1b232c; border-radius:10px; padding:8px 10px; font-size:14px; }
+    select{ min-width:220px; }
+    .mode{ display:flex; gap:10px; align-items:center; }
+    .mode input{ accent-color:#5cc6ff; }
+    .kbd-wrap{ position:relative; margin-top:14px; padding:14px; border-radius:14px; background:#0e1318; box-shadow: 0 1px 0 #000 inset, 0 0 0 1px #1b232c; }
+    .keyboard{ position:relative; width: calc(21 * var(--white-w)); height: var(--white-h); user-select:none; touch-action:none; }
+
+    /* White keys */
+    .white{
+      position:relative; display:inline-block; vertical-align:top;
+      width:var(--white-w); height:var(--white-h);
+      background:linear-gradient(#f7fbff,#e4ecf4);
+      border:1px solid #a3b3c4; border-bottom:3px solid #7a8b9c; border-radius:0 0 6px 6px;
+      box-sizing:border-box; margin:0; cursor:pointer; 
+    }
+    .white .label{ position:absolute; bottom:6px; left:0; right:0; text-align:center; font: 700 11px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#2a3c4d; }
+    .white.active{ outline:2px solid var(--active); background:linear-gradient(#e8f6ff,#dfefff); }
+
+    /* Black keys */
+    .black{
+      position:absolute; top:0; width:var(--black-w); height:var(--black-h);
+      background:linear-gradient(#0c0f14,#1b232c);
+      border:1px solid #0b0f14; border-bottom:3px solid #000; border-radius:0 0 5px 5px;
+      transform:translateX(-50%); z-index:5; cursor:pointer;
+      box-shadow: inset 0 -4px 0 rgba(255,255,255,0.06), 0 6px 10px rgba(0,0,0,0.35);
+    }
+    .black .label{ position:absolute; bottom:8px; left:0; right:0; text-align:center; font:700 10px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#d9e7f5; }
+    .black.active{ outline:2px solid var(--active); background:linear-gradient(#121923,#263243); }
+
+    .row{ display:flex; gap:10px; align-items:center; }
+    .spacer{ flex:1; }
+    .pill{ padding:4px 8px; font-size:12px; border:1px solid #233141; border-radius:999px; color:#a8b8c8; }
+    .small{ font-size:12px; color:#94a6b7; }
+    .hidden{ display:none; }
+    #testLog{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; line-height:1.35; white-space:pre-wrap; background:#0e1318; border:1px solid #1b232c; border-radius:10px; padding:8px; max-height:180px; overflow:auto; }
+    .ok{ color:#8ae234; }
+    .fail{ color:#ff6b6b; }
+
+    /* Banner + buttons */
+    .banner{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; margin:8px 0 12px; background:linear-gradient(90deg, #1e2937, #18212b); border:1px solid #2a3a4a; color:#cfe8ff; }
+    .banner strong{ color:#8fceff; }
+    .btn{ border-radius:999px; padding:6px 10px; border:1px solid #2a3a4a; background:#0f1720; cursor:pointer; }
+    .btn:hover{ filter:brightness(1.15); }
+    /* Emphasize controls in the main panel without changing section backgrounds */
+    .control-panel select,
+    .control-panel button,
+    .control-panel input[type="range"]{
+      background:#0f1720;             /* slightly lighter for contrast */
+      border-color:#2a3a4a;            /* higher contrast border */
+      box-shadow:
+        0 0 0 1px #2a3a4a,
+        0 2px 6px rgba(0,0,0,0.35),
+        inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .control-panel button{ font-weight:600; }
+    .control-panel select:hover,
+    .control-panel button:hover{ filter:brightness(1.08); }
+    .control-panel select:focus-visible,
+    .control-panel button:focus-visible,
+    .control-panel input[type="range"]:focus-visible{
+      outline:2px solid var(--active);
+      outline-offset:2px;
+    }
+    /* Scale markers (small blue dot on keys) */
+    .scale-dot{ position:absolute; width:8px; height:8px; border-radius:50%; pointer-events:none; opacity:0.9; }
+    .white .scale-dot{ bottom:28px; top:auto; left:50%; transform:translateX(-50%); background:#3fb2ff; box-shadow:0 0 0 1px rgba(0,0,0,0.25); }
+    .black .scale-dot{ top:6px; left:50%; transform:translateX(-50%); background:#7fd1ff; box-shadow:0 0 0 1px rgba(255,255,255,0.6); }
+    /* Row icons */
+    .row-icon{ font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:#0f1720; border:1px solid #2a3a4a; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
+  </style>
+  <!-- NOTE: We load soundfont-player and WebAudioFont dynamically via CDN with readiness checks. -->
+</head>
+<body>
+  <h1>Virtual Keyboard — 3 Octaves • Normal & Latch Modes • Sampled Instruments & Pure Tones</h1>
+
+  <div id="fallbackBanner" class="banner hidden" role="status" aria-live="polite">
+    <span>🎵</span>
+    <span id="bannerMsg"><strong>Notice.</strong> Using fallback engine.</span>
+    <div style="flex-basis:100%; height:0"></div>
+    <div>
+      <span class="small" style="margin-right:6px">Engine (temporary):</span>
+      <button class="btn" data-engine="sf">Try SoundFont</button>
+      <button class="btn" data-engine="waf">Try WebAudioFont</button>
+      <button class="btn" data-engine="osc">Use Pure Tones</button>
+      <button class="btn" id="hideBannerBtn" title="Hide troubleshooting controls">Hide</button>
+    </div>
+  </div>
+
+  <!-- Row: Sound -->
+  <div id="panelSound" class="panel control-panel">
+    <span class="row-icon" aria-hidden="true">🎹</span>
+    <label>Sound source:
+      <select id="soundSelect" title="Choose a sampled instrument or a pure tone">
+        <optgroup label="Sampled instruments (SoundFont)">
+          <option value="sf:acoustic_grand_piano" selected>Piano (grand)</option>
+          <option value="sf:violin">Violin</option>
+          <option value="sf:flute">Flute</option>
+          <option value="sf:nylon_guitar">Guitar (nylon)</option>
+          <option value="sf:trumpet">Trumpet</option>
+          <option value="sf:alto_sax">Alto Sax</option>
+          <option value="sf:music_box">Music Box</option>
+          <option value="sf:celesta">Celesta</option>
+        </optgroup>
+        <optgroup label="Sampled instruments (WebAudioFont)">
+          <option value="waf:acoustic_grand_piano">Piano (grand) — WAF</option>
+          <option value="waf:violin">Violin — WAF</option>
+          <option value="waf:flute">Flute — WAF</option>
+          <option value="waf:nylon_guitar">Guitar (nylon) — WAF</option>
+          <option value="waf:trumpet">Trumpet — WAF</option>
+          <option value="waf:alto_sax">Alto Sax — WAF</option>
+          <option value="waf:music_box">Music Box — WAF</option>
+          <option value="waf:celesta">Celesta — WAF</option>
+        </optgroup>
+        <optgroup label="Pure tones (oscillator)">
+          <option value="osc:sine">Pure: Sine</option>
+          <option value="osc:triangle">Pure: Triangle</option>
+          <option value="osc:square">Pure: Square</option>
+          <option value="osc:sawtooth">Pure: Sawtooth</option>
+        </optgroup>
+      </select>
+    </label>
+
+    <label>Volume
+      <input id="vol" type="range" min="0" max="1" step="0.01" value="0.85" />
+    </label>
+
+    <button id="stopAll">Stop All</button>
+    <span id="status" class="small" aria-live="polite"></span>
+  </div>
+
+  <!-- Row: Play -->
+  <div id="panelPlay" class="panel control-panel">
+    <span class="row-icon" aria-hidden="true">▶️</span>
+    <div class="mode" title="How notes stop">
+      <label><input type="radio" name="mode" value="normal" checked> Normal</label>
+      <label><input type="radio" name="mode" value="latch"> Latch sustain</label>
+      <span class="pill">Normal: short click rings; hold = sustain while held</span>
+      <span class="pill">Latch: click to start, click again to stop</span>
+    </div>
+
+    <label>Default length (Normal)
+      <input id="defaultLen" type="range" min="0.3" max="3.0" step="0.1" value="1.5" />
+    </label>
+
+    <button id="btnSelfTest" title="Run quick diagnostics">Run self‑test</button>
+  </div>
+
+  <!-- Row: Guide -->
+  <div id="panelGuide" class="panel control-panel">
+    <span class="row-icon" aria-hidden="true">🎼</span>
+    <label>Scale type
+      <select id="scaleType">
+        <option value="none" selected>No scale</option>
+        <option value="major">Major</option>
+        <option value="minor">Minor</option>
+      </select>
+    </label>
+
+    <label>Scale key
+      <select id="scaleKey">
+        <option value="C" selected>C</option>
+        <option value="C#">C#</option>
+        <option value="D">D</option>
+        <option value="D#">D#</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="F#">F#</option>
+        <option value="G">G</option>
+        <option value="G#">G#</option>
+        <option value="A">A</option>
+        <option value="A#">A#</option>
+        <option value="B">B</option>
+      </select>
+    </label>
+
+    <span class="pill">● scale notes</span>
+  </div>
+
+  <div class="kbd-wrap">
+    <div id="keyboard" class="keyboard" aria-label="Three-octave keyboard from C3 to B5"></div>
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <div class="small" style="margin-bottom:6px">Diagnostics log</div>
+    <div id="testLog" aria-live="polite"></div>
+  </div>
+
+<script>
+'use strict';
+(function(){
+  // =============================
+  // Utilities & dynamic loader
+  // =============================
+  const CDN_SOURCES = [
+    'https://unpkg.com/soundfont-player@0.15.7/dist/soundfont-player.min.js',
+    'https://cdn.jsdelivr.net/npm/soundfont-player@0.15.7/dist/soundfont-player.min.js'
+  ];
+  const SF_GLOBAL = 'Soundfont';
+
+  function log(msg, ok=true){
+    const el = document.getElementById('testLog');
+    const p = document.createElement('div');
+    p.className = ok ? 'ok' : 'fail';
+    p.textContent = (ok ? '✔ ' : '✖ ') + msg;
+    el.appendChild(p);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function showStatus(text){
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = text;
+    clearTimeout(showStatus._t);
+    showStatus._t = setTimeout(()=>{ statusEl.textContent=''; }, 2500);
+  }
+
+  function showBanner(msg){
+    const b = document.getElementById('fallbackBanner');
+    document.getElementById('bannerMsg').innerHTML = `<strong>Notice.</strong> ${msg}`;
+    b.classList.remove('hidden');
+  }
+  function hideBanner(){
+    document.getElementById('fallbackBanner').classList.add('hidden');
+  }
+
+  function setDropdownValue(val){
+    const sel = document.getElementById('soundSelect');
+    sel.value = val; // programmatic change; no event dispatch
+  }
+
+  function loadScript(src, timeoutMs=8000){
+    return new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      let done = false;
+      s.onload = ()=>{ if(done) return; done = true; resolve(); };
+      s.onerror = ()=>{ if(done) return; done = true; reject(new Error('Failed to load '+src)); };
+      document.head.appendChild(s);
+      setTimeout(()=>{ if(!done){ done = true; reject(new Error('Timeout loading '+src)); } }, timeoutMs);
+    });
+  }
+
+  async function ensureSoundfont(){
+    if(window[SF_GLOBAL]) return window[SF_GLOBAL];
+    for(const src of CDN_SOURCES){
+      try{
+        await loadScript(src);
+        if(window[SF_GLOBAL]){ log('soundfont-player loaded from '+src); return window[SF_GLOBAL]; }
+      }catch(err){ log(err.message, false); }
+    }
+    log('soundfont-player unavailable', false);
+    return null;
+  }
+
+  function switchToOscillatorFallback(message){
+    sourceKind = 'osc';
+    sourceName = 'sine';
+    setDropdownValue('osc:sine');
+    showBanner(message || 'Switched to <em>Pure: Sine</em> as a fallback.');
+    showStatus('Using oscillator fallback');
+  }
+
+  // =============================
+  // WebAudioFont dynamic loader (no install)
+  // =============================
+  const WAF_CDN_SOURCES = [
+    'https://cdn.jsdelivr.net/npm/webaudiofont@3.0.4/npm/dist/WebAudioFontPlayer.js',
+    'https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js'
+  ];
+  const WAF_BASE = 'https://surikov.github.io/webaudiofontdata/sound/';
+  const WAF_VARIANT = 'GeneralUserGS_sf2_file';
+  const WAF_PRESETS = {
+    acoustic_grand_piano: { code: '0000', title: 'Acoustic Grand Piano' },
+    violin:                { code: '0400', title: 'Violin' },
+    flute:                 { code: '0730', title: 'Flute' },
+    nylon_guitar:          { code: '0240', title: 'Acoustic Guitar (nylon)' },
+    trumpet:               { code: '0560', title: 'Trumpet' },
+    alto_sax:              { code: '0650', title: 'Alto Sax' },
+    music_box:             { code: '0100', title: 'Music Box' },
+    celesta:               { code: '0080', title: 'Celesta' }
+  };
+
+  async function ensureWebAudioFont(){
+    if(window.WebAudioFontPlayer) return window.WebAudioFontPlayer;
+    for(const src of WAF_CDN_SOURCES){
+      try{
+        await loadScript(src);
+        if(window.WebAudioFontPlayer){ log('WebAudioFontPlayer loaded from '+src); return window.WebAudioFontPlayer; }
+      }catch(err){ log(err.message, false); }
+    }
+    log('WebAudioFontPlayer unavailable', false);
+    return null;
+  }
+
+  async function maybeLoadWAFInstrument(name){
+    const WAF = await ensureWebAudioFont();
+    if(!WAF){ return null; }
+    const map = WAF_PRESETS[name];
+    if(!map){ log('No WebAudioFont mapping for "'+name+'"', false); return null; }
+    if(!wafPlayer) wafPlayer = new window.WebAudioFontPlayer();
+    const code = map.code;
+    const file = `${code}_${WAF_VARIANT}.js`;
+    const varName = `_tone_${code}_${WAF_VARIANT}`;
+    return new Promise((resolve)=>{
+      try{
+        wafPlayer.loader.startLoad(ctx, WAF_BASE + file, varName);
+        wafPlayer.loader.waitLoad(function(){
+          wafPresetVar = varName;
+          hideBanner();
+          log(`WAF instrument loaded: ${name} → ${varName}`);
+          resolve(wafPlayer);
+        });
+      }catch(err){
+        log('WebAudioFont load failed: '+err.message, false);
+        resolve(null);
+      }
+    });
+  }
+
+  // =============================
+  // Audio graph
+  // =============================
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioContext();
+  const master = ctx.createGain();
+  master.gain.value = 0.85;
+  master.connect(ctx.destination);
+
+  function ensureAudio(){ if(ctx.state !== 'running') ctx.resume(); }
+  function now(){ return ctx.currentTime; }
+
+  // =============================
+  // Build keyboard (C3..B5)
+  // =============================
+  const startMIDI = 48; // C3
+  const endMIDI   = 83; // B5
+  const WHITE_W = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--white-w'));
+
+  const keyboard = document.getElementById('keyboard');
+  const noteOrder = [];
+
+  function midiToNote(m){
+    const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const name = names[m % 12];
+    const octave = Math.floor(m/12) - 1;
+    return name + octave;
+  }
+  function isSharpName(n){ return n.includes('#'); }
+  function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
+  function noteNameToMidi(name){
+    const map = {C:0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11};
+    const m = map[name.replace(/-?\d+$/, '').toUpperCase()];
+    const oct = parseInt(name.match(/(-?\d+)$/)[1], 10);
+    return (oct + 1) * 12 + m;
+  }
+
+  for(let m=startMIDI; m<=endMIDI; m++){
+    const note = midiToNote(m);
+    const sharp = isSharpName(note);
+    noteOrder.push({m, note, sharp});
+  }
+
+  // White keys first
+  let whiteCount = 0;
+  noteOrder.forEach(n=>{
+    if(!n.sharp){
+      const key = document.createElement('div');
+      key.className = 'white';
+      key.dataset.note = n.note;
+      key.style.width = 'var(--white-w)';
+      key.innerHTML = `<div class="label">${n.note}</div>`;
+      keyboard.appendChild(key);
+      n.whiteIndex = whiteCount;
+      whiteCount++;
+    }
+  });
+  // Black keys second (positioned between)
+  let lastWhiteIndex = -1; whiteCount = 0;
+  noteOrder.forEach(n=>{
+    if(!n.sharp){ lastWhiteIndex = whiteCount; whiteCount++; return; }
+    const black = document.createElement('div');
+    black.className = 'black';
+    black.dataset.note = n.note;
+    black.innerHTML = `<div class="label">${n.note}</div>`;
+    const left = (lastWhiteIndex * WHITE_W) + (WHITE_W * 0.66);
+    black.style.left = left + 'px';
+    keyboard.appendChild(black);
+  });
+
+  // =============================
+  // State & controls
+  // =============================
+  let mode = 'normal'; // 'normal' | 'latch'
+  let sourceKind = 'sf';
+  let sourceName = 'acoustic_grand_piano'; // sf instrument name OR oscillator type
+  let sfPlayer = null; // soundfont-player instrument
+  let wafPlayer = null, wafPresetVar = null; // WebAudioFont state
+  const active = new Map(); // note -> { type, ... }
+
+  const volEl = document.getElementById('vol');
+  const defaultLenEl = document.getElementById('defaultLen');
+  const soundSel = document.getElementById('soundSelect');
+  const scaleKeyEl = document.getElementById('scaleKey');
+  const scaleTypeEl = document.getElementById('scaleType');
+  document.getElementById('stopAll').addEventListener('click', stopAll);
+  document.getElementById('btnSelfTest').addEventListener('click', runSelfTest);
+  document.getElementById('hideBannerBtn').addEventListener('click', hideBanner);
+  document.getElementById('fallbackBanner').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-engine]'); if(!btn) return;
+    const engine = btn.getAttribute('data-engine');
+    forceEngine(engine);
+  });
+
+  scaleKeyEl.addEventListener('change', applyScaleMarkers);
+  scaleTypeEl.addEventListener('change', applyScaleMarkers);
+
+  volEl.addEventListener('input', () => master.gain.value = parseFloat(volEl.value));
+  defaultLenEl.addEventListener('input', ()=> showStatus(`Default ring: ${parseFloat(defaultLenEl.value).toFixed(1)}s`));
+
+  function setMode(val){
+    mode = val;
+    showStatus(mode === 'latch' ? 'Latch sustain: click toggles on/off' : 'Normal: click rings; hold sustains');
+  }
+  document.getElementsByName('mode').forEach(r=>{
+    r.addEventListener('change', (e)=>{ setMode(e.target.value); });
+  });
+
+  soundSel.addEventListener('change', async ()=>{
+    // Any sound change should silence current notes to avoid overlap, esp. in latch mode
+    stopAll();
+    const [kind, name] = soundSel.value.split(':');
+    hideBanner();
+    sourceKind = kind; sourceName = name;
+    if(kind === 'sf'){
+      const player = await maybeLoadInstrument(name);
+      if(player){
+        showStatus(`Instrument: ${name.replace(/_/g,' ')}`);
+      } else {
+        await fallbackFromFailure('sf', name, 'Could not load the selected SoundFont instrument.');
+      }
+    } else if(kind === 'waf'){
+      const p = await maybeLoadWAFInstrument(name);
+      if(p){
+        const human = (WAF_PRESETS[name]?.title || name).replace(/_/g,' ');
+        showStatus(`WAF: ${human}`);
+      } else {
+        await fallbackFromFailure('waf', name, 'Could not load the selected WebAudioFont preset.');
+      }
+    } else {
+      showStatus(`Oscillator: ${name}`);
+    }
+  });
+
+  // =============================
+  // Engine toggling (temporary, session-only)
+  // =============================
+  async function forceEngine(engine){
+    // Switching engine should silence current notes first
+    stopAll();
+    const current = soundSel.value;
+    const [, curName] = current.split(':');
+    if(engine === 'sf'){
+      sourceKind = 'sf'; sourceName = curName && WAF_PRESETS[curName] ? curName : 'acoustic_grand_piano';
+      const ok = await maybeLoadInstrument(sourceName);
+      if(ok){ setDropdownValue(`sf:${sourceName}`); hideBanner(); showStatus('Engine: SoundFont'); }
+      else { await fallbackFromFailure('sf', sourceName, 'SoundFont engine failed.'); }
+    } else if(engine === 'waf'){
+      sourceKind = 'waf'; sourceName = curName && WAF_PRESETS[curName] ? curName : 'acoustic_grand_piano';
+      const ok = await maybeLoadWAFInstrument(sourceName);
+      if(ok){ setDropdownValue(`waf:${sourceName}`); hideBanner(); showStatus('Engine: WebAudioFont'); }
+      else { await fallbackFromFailure('waf', sourceName, 'WebAudioFont engine failed.'); }
+    } else {
+      switchToOscillatorFallback('Using pure tones.');
+    }
+  }
+
+  async function fallbackFromFailure(kind, name, reason){
+    // On any engine/preset failure, ensure we stop currently sounding notes
+    stopAll();
+    if(kind === 'sf'){
+      // Try same instrument on WebAudioFont
+      const ok = await maybeLoadWAFInstrument(name);
+      if(ok){
+        setDropdownValue(`waf:${name in WAF_PRESETS ? name : 'acoustic_grand_piano'}`);
+        sourceKind = 'waf'; sourceName = name in WAF_PRESETS ? name : 'acoustic_grand_piano';
+        showBanner(`${reason} Switched to <em>WebAudioFont</em>. Use buttons to try a different engine.`);
+        return;
+      }
+      // Then pure tones
+      switchToOscillatorFallback(`${reason} Switched to <em>Pure: Sine</em>.`);
+    } else if(kind === 'waf'){
+      // Try SoundFont
+      const ok = await maybeLoadInstrument(name);
+      if(ok){
+        setDropdownValue(`sf:${name}`);
+        sourceKind = 'sf'; sourceName = name;
+        showBanner(`${reason} Switched to <em>SoundFont</em>. Use buttons to try a different engine.`);
+        return;
+      }
+      switchToOscillatorFallback(`${reason} Switched to <em>Pure: Sine</em>.`);
+    }
+  }
+
+  // =============================
+  // Scale markers (major/minor) — unobtrusive dots on keys
+  // =============================
+  const NOTE_TO_PC = {C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  const SCALE_INTERVALS = {
+    major: [0,2,4,5,7,9,11],
+    minor: [0,2,3,5,7,8,10] // natural minor
+  };
+
+  function computeScaleSet(rootName, type){
+    if(!type || type === 'none') return null;
+    const root = NOTE_TO_PC[rootName];
+    const iv = SCALE_INTERVALS[type];
+    if(root === undefined || !iv) return null;
+    return new Set(iv.map(i => (root + i) % 12));
+  }
+
+  function removeAllScaleDots(){
+    keyboard.querySelectorAll('.scale-dot').forEach(el => el.remove());
+  }
+
+  function applyScaleMarkers(){
+    removeAllScaleDots();
+    const type = scaleTypeEl.value;
+    const root = scaleKeyEl.value;
+    const set = computeScaleSet(root, type);
+    if(!set) return; // none
+    keyboard.querySelectorAll('[data-note]').forEach(el => {
+      const pc = noteNameToMidi(el.dataset.note) % 12;
+      if(set.has(pc)){
+        if(!el.querySelector('.scale-dot')){
+          const dot = document.createElement('div');
+          dot.className = 'scale-dot';
+          el.appendChild(dot);
+        }
+      }
+    });
+  }
+
+  // =============================
+  // Note start/stop
+  // =============================
+  const MIN_HOLD_MS = 100;
+  const LATCH_MAX = 3600; // seconds (effectively indefinite) for sampled engines
+  const LATCH_VOICE_SEC = 3.0;   // individual one-shot length used for refiring (sf/waf)
+  const LATCH_KEEPALIVE_MS = 2600; // refire interval to keep latched notes audible (sf/waf)
+
+  function setKeyActive(note, on){
+    keyboard.querySelectorAll(`[data-note="${note}"]`).forEach(k=>k.classList.toggle('active', !!on));
+  }
+
+  function startNote(note){
+    ensureAudio();
+    const t0 = now();
+    if(active.has(note)) stopNote(note, true);
+
+    if(sourceKind === 'waf'){
+      if(!wafPlayer || !wafPresetVar){
+        // gentle local fallback if preset missing
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = midiToFreq(noteNameToMidi(note));
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(1.0, t0 + 0.01);
+        gain.gain.linearRampToValueAtTime(0.7, t0 + 0.12);
+        osc.connect(gain).connect(master);
+        osc.start(t0);
+        active.set(note, { type:'osc', osc, gain, startedAt:t0, timer:null });
+      } else {
+        const dur = (mode==='latch') ? LATCH_VOICE_SEC : parseFloat(defaultLenEl.value);
+        const midi = noteNameToMidi(note);
+        const env = wafPlayer.queueWaveTable(ctx, master, window[wafPresetVar], t0, midi, dur, 1.0);
+        active.set(note, { type:'waf', env, startedAt:t0, timer:null });
+        // Keep-alive for latch (retrigger before natural decay)
+        if(mode==='latch'){
+          const noteName = note;
+          const keepId = setInterval(()=>{
+            const d = active.get(noteName);
+            if(!d || d.type!=='waf' || !wafPlayer || !wafPresetVar) return;
+            try{
+              const midi2 = noteNameToMidi(noteName);
+              const newEnv = wafPlayer.queueWaveTable(ctx, master, window[wafPresetVar], now(), midi2, LATCH_VOICE_SEC, 1.0);
+              try{ d.env.cancel(); }catch(_){}
+              d.env = newEnv;
+            }catch(_){/* swallow */}
+          }, LATCH_KEEPALIVE_MS);
+          const d = active.get(noteName); if(d) d.keepAlive = keepId;
+        }
+      }
+    } else if(sourceKind === 'sf' && sfPlayer){
+      const dur = (mode==='latch') ? LATCH_VOICE_SEC : parseFloat(defaultLenEl.value);
+      const playable = sfPlayer.play(note, t0, { duration: dur, gain: 1.0 });
+      active.set(note, { type:'sf', playable, startedAt:t0, timer:null });
+      // Keep-alive for latch (retrigger before one-shot sample ends)
+      if(mode==='latch'){
+        const noteName = note;
+        const keepId = setInterval(()=>{
+          const d = active.get(noteName);
+          if(!d || d.type!=='sf' || !sfPlayer) return;
+          try{
+            const newPlayable = sfPlayer.play(noteName, now(), { duration: LATCH_VOICE_SEC, gain: 1.0 });
+            try{ d.playable.stop(); }catch(_){}
+            d.playable = newPlayable;
+          }catch(_){/* swallow */}
+        }, LATCH_KEEPALIVE_MS);
+        const d = active.get(noteName); if(d) d.keepAlive = keepId;
+      }
+    } else {
+      // oscillator baseline (pure tone)
+      const osc = ctx.createOscillator();
+      osc.type = sourceName; // sine, square, triangle, sawtooth
+      osc.frequency.value = midiToFreq(noteNameToMidi(note));
+      const gain = ctx.createGain();
+      const a=0.01, d=0.08, s=0.75; // simple ADS
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(1.0, t0 + a);
+      gain.gain.linearRampToValueAtTime(s, t0 + a + d);
+      osc.connect(gain).connect(master);
+      osc.start(t0);
+      active.set(note, { type:'osc', osc, gain, startedAt:t0, timer:null });
+    }
+    setKeyActive(note, true);
+  }
+
+  function stopNote(note){
+    const d = active.get(note);
+    // clear any latch keep-alive interval
+    if(d && d.keepAlive){ clearInterval(d.keepAlive); d.keepAlive = null; }
+    if(!d) return;
+    const t = now();
+    if(d.type === 'osc'){
+      const rel = 0.2;
+      d.gain.gain.cancelScheduledValues(t);
+      d.gain.gain.setValueAtTime(d.gain.gain.value, t);
+      d.gain.gain.linearRampToValueAtTime(0, t + rel);
+      d.osc.stop(t + rel + 0.02);
+    } else if(d.type === 'sf'){
+      try{ d.playable.stop(); }catch(_){ }
+    } else if(d.type === 'waf'){
+      try{ d.env.cancel(); }catch(_){ }
+    }
+    if(d.timer) clearTimeout(d.timer);
+    active.delete(note);
+    setKeyActive(note, false);
+  }
+
+  function stopAll(){ Array.from(active.keys()).forEach(n=>stopNote(n, true)); }
+
+  function releaseNormal(note){
+    const d = active.get(note); if(!d) return;
+    const tHeldMs = (now() - d.startedAt) * 1000;
+    if(tHeldMs < MIN_HOLD_MS){
+      const target = d.startedAt + parseFloat(defaultLenEl.value);
+      const ms = Math.max(0, (target - now()) * 1000);
+      if(d.timer) clearTimeout(d.timer);
+      d.timer = setTimeout(()=> stopNote(note), ms);
+    } else {
+      stopNote(note);
+    }
+  }
+
+  function bindKeyEvents(el){
+    const note = el.dataset.note;
+    el.addEventListener('pointerdown', (e)=>{
+      e.preventDefault();
+      el.setPointerCapture?.(e.pointerId);
+      if(mode==='latch'){
+        if(active.has(note)){
+          // toggle off
+          stopNote(note);
+        } else {
+          // monophonic latch: stop any other sounding notes before starting new
+          stopAll();
+          startNote(note);
+        }
+      } else {
+        startNote(note);
+      }
+    });
+    el.addEventListener('pointerup', ()=>{ if(mode==='normal') releaseNormal(note); });
+    el.addEventListener('pointercancel', ()=>{ if(mode==='normal') releaseNormal(note); });
+  }
+  // Hook up key events & initial scale markers
+  keyboard.querySelectorAll('[data-note]').forEach(bindKeyEvents);
+  applyScaleMarkers();
+
+  // =============================
+  // Instrument loading with guard
+  // =============================
+  async function maybeLoadInstrument(name){
+    const Soundfont = await ensureSoundfont();
+    if(!Soundfont){ return null; }
+    showStatus('Loading SoundFont instrument…');
+    try{
+      sfPlayer = await Soundfont.instrument(ctx, name, { soundfont: 'MusyngKite', destination: master });
+      hideBanner();
+      log(`SoundFont instrument loaded: ${name}`);
+      return sfPlayer;
+    }catch(err){
+      log('SoundFont load failed: '+err.message, false);
+      sfPlayer = null;
+      return null;
+    } finally {
+      showStatus('');
+    }
+  }
+
+  // =============================
+  // Self-tests (manual)
+  // =============================
+  async function runSelfTest(){
+    ensureAudio();
+    document.getElementById('testLog').textContent='';
+    // Test 1: Soundfont global
+    const sf = await ensureSoundfont();
+    if(sf){ log('Global "Soundfont" is defined'); } else { log('Global "Soundfont" not available', false); }
+
+    // Test 2: Try load default SoundFont instrument
+    if(sf){
+      const p = await maybeLoadInstrument('acoustic_grand_piano');
+      if(p){ log('Loaded "acoustic_grand_piano" via SoundFont successfully'); }
+      else { log('Could not load "acoustic_grand_piano" via SoundFont', false); }
+    }
+
+    // Test 2b: WebAudioFont availability + load piano
+    try{
+      const waf = await ensureWebAudioFont();
+      if(waf){
+        log('WebAudioFontPlayer is defined');
+        const ok = await maybeLoadWAFInstrument('acoustic_grand_piano');
+        if(ok){
+          wafPlayer.queueWaveTable(ctx, master, window[wafPresetVar], now(), 69, 0.25, 0.6);
+          log('WebAudioFont A4 test played for 250ms');
+        } else {
+          log('Could not load WebAudioFont preset for piano', false);
+        }
+      } else {
+        log('WebAudioFontPlayer not available', false);
+      }
+    }catch(err){ log('WebAudioFont test raised: '+err.message, false); }
+
+    // Test 3: Play A4 briefly via oscillator as baseline
+    try{
+      const t0 = now();
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = 440;
+      const g = ctx.createGain();
+      g.gain.value = 0.2; // quiet beep
+      osc.connect(g).connect(master);
+      osc.start(t0);
+      osc.stop(t0 + 0.25);
+      log('Oscillator baseline beep (A4) played for 250ms');
+    }catch(err){ log('Oscillator failed: '+err.message, false); }
+
+    // Test 4: Latch toggle logic (no exception path)
+    try{
+      const n = 'C4';
+      startNote(n); // start
+      stopNote(n);  // stop
+      log('Latch/stop logic executed without exception');
+    }catch(err){ log('Latch/stop logic raised: '+err.message, false); }
+
+    // Test 5: UI fallback switch visual test
+    try{
+      switchToOscillatorFallback('Simulated test: fallback UI engaged.');
+      const sel = document.getElementById('soundSelect');
+      if(sel.value === 'osc:sine') log('Dropdown switched to Pure: Sine (UI fallback)');
+      else log('Dropdown did not switch to Pure: Sine', false);
+    }catch(err){ log('UI fallback test raised: '+err.message, false); }
+
+    // Test 6: Keyboard range (3 octaves C3..B5)
+    try{
+      const first = document.querySelector('[data-note="C3"]');
+      const last  = document.querySelector('[data-note="B5"]');
+      if(first && last) log('DOM keys present: C3 .. B5');
+      else log('Expected DOM keys C3 and/or B5 not found', false);
+      const whites = document.querySelectorAll('#keyboard .white').length;
+      if(whites === 21) log('White key count OK: 21 (3 octaves)');
+      else log('White key count expected 21, got ' + whites, false);
+    }catch(err){ log('DOM range test raised: ' + err.message, false); }
+
+    // Test 7: Scale markers (C major) — C3 should be marked, C#3 should not
+    try{
+      const prevKey = scaleKeyEl.value, prevType = scaleTypeEl.value;
+      scaleKeyEl.value = 'C'; scaleTypeEl.value = 'major';
+      applyScaleMarkers();
+      const hasC3  = !!document.querySelector('[data-note="C3"] .scale-dot');
+      const hasCs3 = !!document.querySelector('[data-note="C#3"] .scale-dot');
+      if(hasC3 && !hasCs3) log('Scale markers OK for C major (C3 marked, C#3 not)');
+      else log('Scale markers unexpected for C major (C3/'+(hasC3?'✓':'✗')+', C#3/'+(hasCs3?'✓':'✗')+')', false);
+      scaleKeyEl.value = prevKey; scaleTypeEl.value = prevType; applyScaleMarkers();
+    }catch(err){ log('Scale markers test raised: ' + err.message, false); }
+
+    // Test 8: Latch monophonic replacement
+    try{
+      setMode('latch');
+      // use oscillator engine to avoid async loads
+      soundSel.value = 'osc:sine'; soundSel.dispatchEvent(new Event('change'));
+      startNote('C4');
+      const afterC = active.size;
+      startNote('E4');
+      const keys = Array.from(active.keys());
+      if(afterC === 1 && active.size === 1 && keys[0] === 'E4') log('Latch monophonic OK: E4 replaced C4');
+      else log('Latch monophonic unexpected: active=' + JSON.stringify(keys), false);
+      stopAll(); setMode('normal');
+    }catch(err){ log('Latch monophonic test raised: ' + err.message, false); }
+
+    // Test 9: Stop All silences latched notes
+    try{
+      setMode('latch');
+      startNote('G4');
+      stopAll();
+      if(active.size === 0) log('Stop All cleared all active notes');
+      else log('Stop All did not clear active notes ('+active.size+')', false);
+      setMode('normal');
+    }catch(err){ log('Stop All test raised: ' + err.message, false); }
+
+    // Test 10: Changing sound source stops current notes
+    try{
+      setMode('latch');
+      soundSel.value = 'osc:sine'; soundSel.dispatchEvent(new Event('change'));
+      startNote('A4');
+      soundSel.value = 'osc:triangle'; soundSel.dispatchEvent(new Event('change'));
+      if(active.size === 0) log('Sound change cleared active notes');
+      else log('Sound change did not clear active notes ('+active.size+')', false);
+      setMode('normal');
+    }catch(err){ log('Sound change test raised: ' + err.message, false); }
+
+    // Test 11: Latch keep-alive scheduled for WAF when available
+    try{
+      const waf = await ensureWebAudioFont();
+      if(waf){
+        const ok = await maybeLoadWAFInstrument('acoustic_grand_piano');
+        if(ok){
+          setMode('latch');
+          soundSel.value = 'waf:acoustic_grand_piano';
+          const n = 'D4';
+          startNote(n);
+          const d = active.get(n);
+          if(d && d.keepAlive) log('Keep-alive interval present for latched WAF note');
+          else log('Keep-alive not set for WAF latched note', false);
+          stopNote(n);
+          if(!d.keepAlive) log('Keep-alive cleared on stop (WAF)');
+          else log('Keep-alive not cleared on stop (WAF)', false);
+          setMode('normal');
+        } else {
+          log('Skipping keep-alive test: WAF preset failed to load');
+        }
+      } else {
+        log('Skipping keep-alive test: WebAudioFont unavailable');
+      }
+    }catch(err){ log('Keep-alive WAF test raised: ' + err.message, false); }
+
+    // Test 12: Stop All clears keep-alive
+    try{
+      setMode('latch');
+      soundSel.value = 'osc:sine'; soundSel.dispatchEvent(new Event('change'));
+      // osc path doesn't need keep-alive, but verify no errors
+      startNote('F4');
+      stopAll();
+      if(active.size === 0) log('Stop All cleared active notes (and any keep-alives)');
+      else log('Stop All left active notes', false);
+      setMode('normal');
+    }catch(err){ log('Stop All keep-alive test raised: ' + err.message, false); }
+  }
+
+  // =============================
+  // Boot
+  // =============================
+  (async function boot(){
+    // Try SoundFont first → if fails, try WAF → else pure tones
+    const okSF = await maybeLoadInstrument(sourceName);
+    if(!okSF){
+      const okWAF = await maybeLoadWAFInstrument(sourceName);
+      if(okWAF){
+        sourceKind = 'waf'; setDropdownValue(`waf:${sourceName}`);
+        showBanner('SoundFont unavailable. Switched to <em>WebAudioFont</em>. Use buttons to try a different engine.');
+      } else {
+        switchToOscillatorFallback('Sampled instruments unavailable. Switched to <em>Pure: Sine</em>.');
+      }
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
