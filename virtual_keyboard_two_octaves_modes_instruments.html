@@ -192,6 +192,9 @@
     </label>
 
     <span class="pill">● scale notes</span>
+    <label class="mode" title="Map A..J and Z..M to 1–7 of the chosen scale">
+      <input id="scaleLock" type="checkbox" checked /> Scale Lock (A..J = 1–7)
+    </label>
   </div>
 
   <div class="kbd-wrap">
@@ -420,6 +423,7 @@
   const soundSel = document.getElementById('soundSelect');
   const scaleKeyEl = document.getElementById('scaleKey');
   const scaleTypeEl = document.getElementById('scaleType');
+  const scaleLockEl = document.getElementById('scaleLock');
   document.getElementById('stopAll').addEventListener('click', stopAll);
   document.getElementById('btnSelfTest').addEventListener('click', runSelfTest);
   document.getElementById('hideBannerBtn').addEventListener('click', hideBanner);
@@ -429,8 +433,11 @@
     forceEngine(engine);
   });
 
-  scaleKeyEl.addEventListener('change', applyScaleMarkers);
-  scaleTypeEl.addEventListener('change', applyScaleMarkers);
+  scaleKeyEl.addEventListener('change', ()=>{ applyScaleMarkers(); /* mapping uses these too */ });
+  scaleTypeEl.addEventListener('change', ()=>{ applyScaleMarkers(); /* mapping uses these too */ });
+  scaleLockEl.addEventListener('change', ()=>{
+    showStatus(scaleLockEl.checked ? 'Scale Lock: on' : 'Scale Lock: off');
+  });
 
   volEl.addEventListener('input', () => master.gain.value = parseFloat(volEl.value));
   defaultLenEl.addEventListener('input', ()=> showStatus(`Default ring: ${parseFloat(defaultLenEl.value).toFixed(1)}s`));
@@ -557,6 +564,114 @@
       }
     });
   }
+
+  // =============================
+  // QWERTY keyboard support (scale-aware + Scale Lock)
+  // =============================
+  const HOME_KEYS = ['a','s','d','f','g','h','j'];       // degrees 1..7
+  const BOTTOM_KEYS = ['z','x','c','v','b','n','m'];     // lower register degrees 1..7
+  const ACC_KEYS = ['w','e','t','y','u'];                // black keys: +1,+3,+6,+8,+10
+  const ACC_OFFSETS = [1,3,6,8,10];
+  const MIDI_MIN = 48; // C3
+  const MIDI_MAX = 83; // B5
+
+  const keysDown = new Set(); // track physical keys to avoid repeat retrigger
+
+  function clampToRange(midi){
+    // Nudge by octaves into available range if possible
+    while(midi < MIDI_MIN) midi += 12;
+    while(midi > MIDI_MAX) midi -= 12;
+    if(midi < MIDI_MIN || midi > MIDI_MAX) return null;
+    return midi;
+  }
+
+  function degreeToMidi(rootName, octave, degreeIndex, type){
+    const iv = SCALE_INTERVALS[type] || SCALE_INTERVALS.major;
+    const rootMidi = noteNameToMidi(`${rootName}${octave}`);
+    const offset = iv[Math.max(0, Math.min(6, degreeIndex))];
+    return rootMidi + offset;
+  }
+
+  function buildQwertyMap(){
+    const lockOn = !!scaleLockEl.checked;
+    const type = scaleTypeEl.value;
+    const root = scaleKeyEl.value;
+    const map = {};
+
+    // Anchors
+    const anchorTopRoot = lockOn && type !== 'none' ? root : 'C';
+    const anchorBotRoot = anchorTopRoot; // same root, lower octave
+    const topOct = 4;
+    const botOct = 3;
+
+    // Home row (degrees 1..7)
+    for(let i=0;i<HOME_KEYS.length;i++){
+      const midi = degreeToMidi(anchorTopRoot, topOct, i, type === 'none' ? 'major' : type);
+      const clamped = clampToRange(midi);
+      if(clamped!=null) map[HOME_KEYS[i]] = midiToNote(clamped);
+    }
+    // Bottom row (degrees 1..7, lower octave)
+    for(let i=0;i<BOTTOM_KEYS.length;i++){
+      const midi = degreeToMidi(anchorBotRoot, botOct, i, type === 'none' ? 'major' : type);
+      const clamped = clampToRange(midi);
+      if(clamped!=null) map[BOTTOM_KEYS[i]] = midiToNote(clamped);
+    }
+    // Accidentals (chromatic relative to root of the row octave)
+    for(let i=0;i<ACC_KEYS.length;i++){
+      const midi = noteNameToMidi(`${anchorTopRoot}${topOct}`) + ACC_OFFSETS[i];
+      const clamped = clampToRange(midi);
+      if(clamped!=null) map[ACC_KEYS[i]] = midiToNote(clamped);
+    }
+    return map;
+  }
+
+  function isTypingInForm(target){
+    const el = target;
+    if(!el) return false;
+    const tag = (el.tagName||'').toLowerCase();
+    return tag === 'input' || tag === 'select' || tag === 'textarea' || el.isContentEditable;
+  }
+
+  function handleKeyDown(e){
+    const k = e.key?.toLowerCase();
+    if(!k) return;
+    if(e.repeat) { /* rely on keysDown to dedupe */ }
+    if(isTypingInForm(e.target)) return;
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    const map = buildQwertyMap();
+    const note = map[k];
+    if(!note) return;
+    if(keysDown.has(k)) return; // ignore repeats
+    keysDown.add(k);
+    e.preventDefault();
+    if(mode==='latch'){
+      if(active.has(note)){
+        stopNote(note);
+      } else {
+        stopAll();
+        startNote(note);
+      }
+    } else {
+      startNote(note);
+    }
+  }
+
+  function handleKeyUp(e){
+    const k = e.key?.toLowerCase();
+    if(!k) return;
+    keysDown.delete(k);
+    if(isTypingInForm(e.target)) return;
+    const map = buildQwertyMap();
+    const note = map[k];
+    if(!note) return;
+    if(mode==='normal'){
+      releaseNormal(note);
+    }
+    // In latch mode, keyup does nothing (toggle handled on keydown)
+  }
+
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
 
   // =============================
   // Note start/stop
