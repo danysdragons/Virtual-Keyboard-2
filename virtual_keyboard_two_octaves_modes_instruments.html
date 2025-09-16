@@ -201,6 +201,19 @@
     <div id="keyboard" class="keyboard" aria-label="Three-octave keyboard from C3 to B5"></div>
   </div>
 
+  <!-- Row: QWERTY Help -->
+  <div id="panelHelp" class="panel control-panel" aria-live="polite">
+    <span class="row-icon" aria-hidden="true">⌨️</span>
+    <button id="toggleGuide" class="btn" aria-expanded="false" aria-controls="qwertyGuide">Show QWERTY Guide</button>
+    <div id="qwertyGuide" class="small hidden" style="flex-basis:100%">
+      <div style="margin:6px 0"><strong>Home row (A S D F G H J)</strong>: degrees 1–7 of the selected scale; octave 4 (typically C4..B4).</div>
+      <div style="margin:6px 0"><strong>Bottom row (Z X C V B N M)</strong>: same degrees one octave lower; octave 3 (typically C3..B3).</div>
+      <div style="margin:6px 0"><strong>Accidentals (W E T Y U)</strong>: black keys relative to the top‑row root (e.g., C# D# F# G# A#).</div>
+      <div style="margin:6px 0">Letters cover C3 up through C4 using bottom then home row. Scale Lock aligns letters to your chosen key/type.</div>
+      <div id="qwertyExamples" class="small" style="margin-top:8px"></div>
+    </div>
+  </div>
+
   <div class="panel" style="margin-top:12px">
     <div class="small" style="margin-bottom:6px">Diagnostics log</div>
     <div id="testLog" aria-live="polite"></div>
@@ -424,6 +437,9 @@
   const scaleKeyEl = document.getElementById('scaleKey');
   const scaleTypeEl = document.getElementById('scaleType');
   const scaleLockEl = document.getElementById('scaleLock');
+  const toggleGuideBtn = document.getElementById('toggleGuide');
+  const qwertyGuide = document.getElementById('qwertyGuide');
+  const qwertyExamples = document.getElementById('qwertyExamples');
   document.getElementById('stopAll').addEventListener('click', stopAll);
   document.getElementById('btnSelfTest').addEventListener('click', runSelfTest);
   document.getElementById('hideBannerBtn').addEventListener('click', hideBanner);
@@ -433,10 +449,11 @@
     forceEngine(engine);
   });
 
-  scaleKeyEl.addEventListener('change', ()=>{ applyScaleMarkers(); /* mapping uses these too */ });
-  scaleTypeEl.addEventListener('change', ()=>{ applyScaleMarkers(); /* mapping uses these too */ });
+  scaleKeyEl.addEventListener('change', ()=>{ applyScaleMarkers(); updateQwertyGuide(); });
+  scaleTypeEl.addEventListener('change', ()=>{ applyScaleMarkers(); updateQwertyGuide(); });
   scaleLockEl.addEventListener('change', ()=>{
     showStatus(scaleLockEl.checked ? 'Scale Lock: on' : 'Scale Lock: off');
+    updateQwertyGuide();
   });
 
   volEl.addEventListener('input', () => master.gain.value = parseFloat(volEl.value));
@@ -564,6 +581,30 @@
       }
     });
   }
+
+  // =============================
+  // QWERTY Guide rendering
+  // =============================
+  function updateQwertyGuide(){
+    if(!qwertyGuide || qwertyGuide.classList.contains('hidden')) return;
+    const map = buildQwertyMap();
+    const seq = (keys)=> keys.map(k=> map[k] || '—').join(' ');
+    const top = seq(HOME_KEYS);
+    const bot = seq(BOTTOM_KEYS);
+    const acc = seq(ACC_KEYS);
+    qwertyExamples.innerHTML = `
+      <div><strong>Top row</strong> A S D F G H J → ${top}</div>
+      <div><strong>Bottom row</strong> Z X C V B N M → ${bot}</div>
+      <div><strong>Accidentals</strong> W E T Y U → ${acc}</div>
+    `;
+  }
+
+  toggleGuideBtn.addEventListener('click', ()=>{
+    const isHidden = qwertyGuide.classList.toggle('hidden');
+    toggleGuideBtn.setAttribute('aria-expanded', String(!isHidden));
+    toggleGuideBtn.textContent = isHidden ? 'Show QWERTY Guide' : 'Hide QWERTY Guide';
+    updateQwertyGuide();
+  });
 
   // =============================
   // QWERTY keyboard support (scale-aware + Scale Lock)
@@ -819,7 +860,10 @@
   }
   // Hook up key events & initial scale markers
   keyboard.querySelectorAll('[data-note]').forEach(bindKeyEvents);
+  // Ensure scale markers render at startup when a scale is chosen later
   applyScaleMarkers();
+  // Prepare initial QWERTY guide text (remains hidden until toggled)
+  updateQwertyGuide();
 
   // =============================
   // Instrument loading with guard
