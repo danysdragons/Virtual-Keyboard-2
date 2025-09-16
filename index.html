@@ -416,7 +416,11 @@
     black.className = 'black';
     black.dataset.note = n.note;
     black.innerHTML = `<div class="label">${n.note}</div>`;
-    const left = (lastWhiteIndex * WHITE_W) + (WHITE_W * 0.66);
+    // Center the black key exactly on the boundary between the
+    // last white key and the next white key. Since `whiteCount`
+    // has been incremented for each preceding white, its value
+    // represents the boundary index from the left.
+    const left = whiteCount * WHITE_W;
     black.style.left = left + 'px';
     keyboard.appendChild(black);
   });
