@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Virtual Keyboard — 3 Octaves • Modes • Instruments • Pure Tones</title>
+  <title>Virtual Keyboard — 4 Octaves • Modes • Instruments • Pure Tones</title>
   <style>
     :root{
       --white-w: 48px;   /* width of white keys */
@@ -16,12 +16,12 @@
     h1{ font-size:20px; margin:0 0 10px; letter-spacing:0.3px; }
     .panel{ display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; padding:12px; border-radius:12px; background:#12171c; box-shadow: 0 1px 0 #000 inset, 0 0 0 1px #1b232c; }
     .panel label{ font-size:14px; color:#c9d4df; }
-    select, input[type="range"], button{ background:#0e1318; color:#e6edf4; border:1px solid #1b232c; border-radius:10px; padding:8px 10px; font-size:14px; }
+    select, input[type="range"], button{ background:#0e1318; color:hsl(210, 39%, 93%); border:1px solid #1b232c; border-radius:10px; padding:8px 10px; font-size:14px; }
     select{ min-width:220px; }
     .mode{ display:flex; gap:10px; align-items:center; }
     .mode input{ accent-color:#5cc6ff; }
     .kbd-wrap{ position:relative; margin-top:14px; padding:14px; border-radius:14px; background:#0e1318; box-shadow: 0 1px 0 #000 inset, 0 0 0 1px #1b232c; }
-    .keyboard{ position:relative; width: calc(21 * var(--white-w)); height: var(--white-h); user-select:none; touch-action:none; }
+    .keyboard{ position:relative; width: calc(28 * var(--white-w)); height: var(--white-h); user-select:none; touch-action:none; }
 
     /* White keys */
     .white{
@@ -89,7 +89,7 @@
   <!-- NOTE: We load soundfont-player and WebAudioFont dynamically via CDN with readiness checks. -->
 </head>
 <body>
-  <h1>Virtual Keyboard — 3 Octaves • Normal & Latch Modes • Sampled Instruments & Pure Tones</h1>
+  <h1>Virtual Keyboard — 4 Octaves • Normal & Latch Modes • Sampled Instruments & Pure Tones</h1>
 
   <div id="fallbackBanner" class="banner hidden" role="status" aria-live="polite">
     <span>🎵</span>
@@ -198,7 +198,7 @@
   </div>
 
   <div class="kbd-wrap">
-    <div id="keyboard" class="keyboard" aria-label="Three-octave keyboard from C3 to B5"></div>
+    <div id="keyboard" class="keyboard" aria-label="Four-octave keyboard from C2 to B5"></div>
   </div>
 
   <!-- Row: QWERTY Help -->
@@ -207,9 +207,9 @@
     <button id="toggleGuide" class="btn" aria-expanded="false" aria-controls="qwertyGuide">Show QWERTY Guide</button>
     <div id="qwertyGuide" class="small hidden" style="flex-basis:100%">
       <div style="margin:6px 0"><strong>Home row (A S D F G H J)</strong>: degrees 1–7 of the selected scale; octave 4 (typically C4..B4).</div>
-      <div style="margin:6px 0"><strong>Bottom row (Z X C V B N M)</strong>: same degrees one octave lower; octave 3 (typically C3..B3).</div>
+      <div style="margin:6px 0"><strong>Bottom row (Z X C V B N M)</strong>: same degrees two octaves lower; octave 2 (typically C2..B2).</div>
       <div style="margin:6px 0"><strong>Accidentals (W E T Y U)</strong>: black keys relative to the top‑row root (e.g., C# D# F# G# A#).</div>
-      <div style="margin:6px 0">Letters cover C3 up through C4 using bottom then home row. Scale Lock aligns letters to your chosen key/type.</div>
+      <div style="margin:6px 0">Letters cover C2 up through C4 using bottom then home row. Scale Lock aligns letters to your chosen key/type.</div>
       <div id="qwertyExamples" class="small" style="margin-top:8px"></div>
     </div>
   </div>
@@ -366,7 +366,7 @@
   // =============================
   // Build keyboard (C3..B5)
   // =============================
-  const startMIDI = 48; // C3
+  const startMIDI = 36; // C2
   const endMIDI   = 83; // B5
   const WHITE_W = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--white-w'));
 
@@ -617,7 +617,7 @@
   const BOTTOM_KEYS = ['z','x','c','v','b','n','m'];     // lower register degrees 1..7
   const ACC_KEYS = ['w','e','t','y','u'];                // black keys: +1,+3,+6,+8,+10
   const ACC_OFFSETS = [1,3,6,8,10];
-  const MIDI_MIN = 48; // C3
+  const MIDI_MIN = 36; // C2
   const MIDI_MAX = 83; // B5
 
   const keysDown = new Set(); // track physical keys to avoid repeat retrigger
@@ -647,7 +647,7 @@
     const anchorTopRoot = lockOn && type !== 'none' ? root : 'C';
     const anchorBotRoot = anchorTopRoot; // same root, lower octave
     const topOct = 4;
-    const botOct = 3;
+    const botOct = 2;
 
     // Home row (degrees 1..7)
     for(let i=0;i<HOME_KEYS.length;i++){
@@ -954,26 +954,27 @@
       else log('Dropdown did not switch to Pure: Sine', false);
     }catch(err){ log('UI fallback test raised: '+err.message, false); }
 
-    // Test 6: Keyboard range (3 octaves C3..B5)
+    // Test 6: Keyboard range (4 octaves C2..B5)
     try{
-      const first = document.querySelector('[data-note="C3"]');
+      const first = document.querySelector('[data-note="C2"]');
       const last  = document.querySelector('[data-note="B5"]');
-      if(first && last) log('DOM keys present: C3 .. B5');
-      else log('Expected DOM keys C3 and/or B5 not found', false);
+      if(first && last) log('DOM keys present: C2 .. B5');
+      else log('Expected DOM keys C2 and/or B5 not found', false);
       const whites = document.querySelectorAll('#keyboard .white').length;
-      if(whites === 21) log('White key count OK: 21 (3 octaves)');
+      if(whites === 28) log('White key count OK: 28 (4 octaves)');
       else log('White key count expected 21, got ' + whites, false);
     }catch(err){ log('DOM range test raised: ' + err.message, false); }
 
-    // Test 7: Scale markers (C major) — C3 should be marked, C#3 should not
+    // Test 7: Scale markers (C major) — C2 and C3 should be marked, C#2 should not
     try{
       const prevKey = scaleKeyEl.value, prevType = scaleTypeEl.value;
       scaleKeyEl.value = 'C'; scaleTypeEl.value = 'major';
       applyScaleMarkers();
+      const hasC2  = !!document.querySelector('[data-note="C2"] .scale-dot');
+      const hasCs2 = !!document.querySelector('[data-note="C#2"] .scale-dot');
       const hasC3  = !!document.querySelector('[data-note="C3"] .scale-dot');
-      const hasCs3 = !!document.querySelector('[data-note="C#3"] .scale-dot');
-      if(hasC3 && !hasCs3) log('Scale markers OK for C major (C3 marked, C#3 not)');
-      else log('Scale markers unexpected for C major (C3/'+(hasC3?'✓':'✗')+', C#3/'+(hasCs3?'✓':'✗')+')', false);
+      if(hasC2 && hasC3 && !hasCs2) log('Scale markers OK for C major (C2 and C3 marked, C#2 not)');
+      else log('Scale markers unexpected for C major (C2/'+(hasC2?'✓':'✗')+', C3/'+(hasC3?'✓':'✗')+', C#2/'+(hasCs2?'✓':'✗')+')', false);
       scaleKeyEl.value = prevKey; scaleTypeEl.value = prevType; applyScaleMarkers();
     }catch(err){ log('Scale markers test raised: ' + err.message, false); }
 
