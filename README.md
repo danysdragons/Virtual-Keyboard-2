@@ -30,6 +30,7 @@ Features
 - QWERTY Keyboard Input:
   - Home row maps to scale degrees 1–7; accidentals on the row above; mirrored degrees on the bottom row.
   - Scale Lock (on by default) aligns letter keys to the current scale key/type.
+  - Quick octave shifts: adjust the home-row octave/bottom-row offset in the panel or tap `[` / `]` / `\` while playing.
 - Built‑in Diagnostics:
   - Self‑test validates library loading, engine fallbacks, range, scale markers, latch logic, and Stop All behavior.
   - Log output appears in the Diagnostics panel.
@@ -40,16 +41,19 @@ Controls
 - Stop All: immediately silences all active/latched notes and clears keep‑alives.
 - Mode: Normal or Latch sustain.
 - Default Length (Normal): ring time for a short click when not latched or held.
-- Self‑Test: runs a quick diagnostic; results shown in the log panel.
+- Home Row Octave: choose the octave for `A S D F G H J` (defaults to 4; quick adjust with `[` and `]`).
+- Bottom Row Offset: pick how far below the home row the `Z X C V B N M` letters sit (same octave, -1, or -2; press `\` to reset both rows).
+- Self-Test: runs a quick diagnostic; results shown in the log panel.
 - Scale Type: None, Major, Minor.
 - Scale Key: C, C#, …, B.
 - Scale Lock: when enabled, letter keys map to scale degrees for the selected scale.
 
 QWERTY Mapping
-- Degrees (top/home row): `A S D F G H J` → 1..7 of the selected scale (e.g., in C major: C D E F G A B).
-- Accidentals (row above): `W E T Y U` → +1, +3, +6, +8, +10 semitones from the anchor.
-- Lower Register (bottom row): `Z X C V B N M` → degrees 1..7 one octave down.
-- Notes hold while a key is held in Normal mode; in Latch mode, a key press toggles the note on/off.
+- Home row (`A S D F G H J`) plays scale degrees 1–7 starting at your chosen Home Row Octave (defaults to C4); tweak it in the control panel or tap `[` / `]` to shift down/up quickly.
+- Accidentals (`W E T Y U`) stay tied to the home row root, adding +1, +3, +6, +8, +10 semitones for chromatic fills.
+- Bottom row (`Z X C V B N M`) mirrors the degrees in a lower register; use Bottom Row Offset (same octave, -1, -2) to decide how far below the home row it sits.
+- Keyboard shortcuts: `[` and `]` shift both rows by ±1 octave; `\` snaps them back to the defaults.
+- Notes sustain while the key is held in Normal mode; in Latch mode, each key press toggles the note on/off.
 
 Audio Engines and Fallbacks
 - SoundFont (preferred): loaded via `soundfont-player` from multiple CDNs. If an instrument fails to load, the app tries WebAudioFont next.
@@ -92,7 +96,7 @@ Implementation Notes
 - Dynamically loads `soundfont-player` and `WebAudioFontPlayer` with readiness checks and multiple CDNs.
 - Instruments/presets are fetched lazily; the UI remains responsive with fallbacks.
 - Scale markers compute pitch classes from the selected key/type and render unobtrusive dots on each matching key.
-- QWERTY mapping respects Scale Lock, with octave anchoring and clamping to the C3–B5 range.
+- QWERTY mapping respects Scale Lock, with octave anchoring and clamping to the C2–B5 range.
 
 Ideas and Next Steps
 - Optional polyphonic latch with a “Mono” toggle.
@@ -105,4 +109,3 @@ Credits
 - SoundFont playback via `soundfont-player`.
 - WebAudioFont presets and loader via `WebAudioFont`.
 - Built on standard Web Audio API.
-

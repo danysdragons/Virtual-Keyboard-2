@@ -160,6 +160,18 @@
       <input id="defaultLen" type="range" min="0.3" max="3.0" step="0.1" value="1.5" />
     </label>
 
+    <label>Home row octave
+      <input id="homeOct" type="number" min="2" max="5" step="1" value="4" />
+    </label>
+
+    <label>Bottom row offset
+      <select id="bottomOffset">
+        <option value="0">Same as home</option>
+        <option value="-1" selected>Home - 1</option>
+        <option value="-2">Home - 2</option>
+      </select>
+    </label>
+
     <button id="btnSelfTest" title="Run quick diagnostics">Run self‑test</button>
   </div>
 
@@ -206,10 +218,11 @@
     <span class="row-icon" aria-hidden="true">⌨️</span>
     <button id="toggleGuide" class="btn" aria-expanded="false" aria-controls="qwertyGuide">Show QWERTY Guide</button>
     <div id="qwertyGuide" class="small hidden" style="flex-basis:100%">
-      <div style="margin:6px 0"><strong>Home row (A S D F G H J)</strong>: degrees 1–7 of the selected scale; octave 4 (typically C4..B4).</div>
-      <div style="margin:6px 0"><strong>Bottom row (Z X C V B N M)</strong>: same degrees two octaves lower; octave 2 (typically C2..B2).</div>
-      <div style="margin:6px 0"><strong>Accidentals (W E T Y U)</strong>: black keys relative to the top‑row root (e.g., C# D# F# G# A#).</div>
-      <div style="margin:6px 0">Letters cover C2 up through C4 using bottom then home row. Scale Lock aligns letters to your chosen key/type.</div>
+      <div style="margin:6px 0"><strong>Home row (A S D F G H J)</strong>: degrees 1–7 of the selected scale; defaults to octave 4 (adjust with the Home row octave control or the [ and ] keys).</div>
+      <div style="margin:6px 0"><strong>Bottom row (Z X C V B N M)</strong>: same degrees in a lower register; defaults to one octave down (C3) and can be shifted with the Bottom row offset control.</div>
+      <div style="margin:6px 0"><strong>Accidentals (W E T Y U)</strong>: black keys relative to the top-row root (e.g., C# D# F# G# A#).</div>
+      <div style="margin:6px 0">Use [ and ] to shift the rows down or up an octave, and &#92; to jump back to the defaults.</div>
+      <div style="margin:6px 0">Letters cover C2 up through C5 depending on your row offsets. Scale Lock aligns letters to your chosen key/type.</div>
       <div id="qwertyExamples" class="small" style="margin-top:8px"></div>
     </div>
   </div>
@@ -434,6 +447,7 @@
   let sfPlayer = null; // soundfont-player instrument
   let wafPlayer = null, wafPresetVar = null; // WebAudioFont state
   const active = new Map(); // note -> { type, ... }
+  const keysDown = new Set(); // track physical keys to avoid repeat retrigger
 
   const volEl = document.getElementById('vol');
   const defaultLenEl = document.getElementById('defaultLen');
@@ -441,9 +455,82 @@
   const scaleKeyEl = document.getElementById('scaleKey');
   const scaleTypeEl = document.getElementById('scaleType');
   const scaleLockEl = document.getElementById('scaleLock');
+  const homeOctEl = document.getElementById('homeOct');
+  const bottomOffsetEl = document.getElementById('bottomOffset');
   const toggleGuideBtn = document.getElementById('toggleGuide');
   const qwertyGuide = document.getElementById('qwertyGuide');
   const qwertyExamples = document.getElementById('qwertyExamples');
+
+  // =============================
+  // QWERTY keyboard metadata & octave state
+  // =============================
+  const HOME_KEYS = ['a','s','d','f','g','h','j'];       // degrees 1..7
+  const BOTTOM_KEYS = ['z','x','c','v','b','n','m'];     // lower register degrees 1..7
+  const ACC_KEYS = ['w','e','t','y','u'];                // black keys: +1,+3,+6,+8,+10
+  const ACC_OFFSETS = [1,3,6,8,10];
+  const MIDI_MIN = 36; // C2
+  const MIDI_MAX = 83; // B5
+
+  const HOME_OCT_MIN = 2;
+  const HOME_OCT_MAX = 5;
+
+  function clampHomeOctave(oct){
+    return Math.max(HOME_OCT_MIN, Math.min(HOME_OCT_MAX, oct));
+  }
+
+  let parsedHome = homeOctEl ? parseInt(homeOctEl.value, 10) : NaN;
+  if(Number.isNaN(parsedHome)) parsedHome = 4;
+  let homeOctave = clampHomeOctave(parsedHome);
+  if(homeOctEl) homeOctEl.value = String(homeOctave);
+
+  let parsedOffset = bottomOffsetEl ? parseInt(bottomOffsetEl.value, 10) : NaN;
+  if(Number.isNaN(parsedOffset)) parsedOffset = -1;
+  let bottomRowOffset = parsedOffset;
+  if(bottomOffsetEl) bottomOffsetEl.value = String(bottomRowOffset);
+
+  const DEFAULT_HOME_OCT = homeOctave;
+  const DEFAULT_BOTTOM_OFFSET = bottomRowOffset;
+
+  function computeBottomOctave(){
+    return clampHomeOctave(homeOctave + bottomRowOffset);
+  }
+
+  function getOctaveStatusText(){
+    const map = buildQwertyMap();
+    const topAnchor = map[HOME_KEYS[0]] || '—';
+    const bottomAnchor = map[BOTTOM_KEYS[0]] || '—';
+    return `Home row anchor: ${topAnchor} • Bottom row anchor: ${bottomAnchor}`;
+  }
+
+  function refreshQwertyLayout(){
+    updateQwertyGuide();
+    showStatus(getOctaveStatusText());
+  }
+
+  function setHomeOctave(oct){
+    const clamped = clampHomeOctave(oct);
+    if(clamped === homeOctave) return false;
+    homeOctave = clamped;
+    if(homeOctEl) homeOctEl.value = String(clamped);
+    refreshQwertyLayout();
+    return true;
+  }
+
+  function setBottomRowOffset(offset){
+    if(offset === bottomRowOffset) return false;
+    bottomRowOffset = offset;
+    if(bottomOffsetEl) bottomOffsetEl.value = String(offset);
+    refreshQwertyLayout();
+    return true;
+  }
+
+  function resetRowOffsets(){
+    const changedTop = setHomeOctave(DEFAULT_HOME_OCT);
+    const changedBottom = setBottomRowOffset(DEFAULT_BOTTOM_OFFSET);
+    if(!changedTop && !changedBottom){
+      refreshQwertyLayout();
+    }
+  }
   document.getElementById('stopAll').addEventListener('click', stopAll);
   document.getElementById('btnSelfTest').addEventListener('click', runSelfTest);
   document.getElementById('hideBannerBtn').addEventListener('click', hideBanner);
@@ -453,11 +540,21 @@
     forceEngine(engine);
   });
 
-  scaleKeyEl.addEventListener('change', ()=>{ applyScaleMarkers(); updateQwertyGuide(); });
-  scaleTypeEl.addEventListener('change', ()=>{ applyScaleMarkers(); updateQwertyGuide(); });
+  scaleKeyEl.addEventListener('change', ()=>{
+    stopAll();
+    applyScaleMarkers();
+    refreshQwertyLayout();
+  });
+  scaleTypeEl.addEventListener('change', ()=>{
+    stopAll();
+    applyScaleMarkers();
+    refreshQwertyLayout();
+  });
   scaleLockEl.addEventListener('change', ()=>{
-    showStatus(scaleLockEl.checked ? 'Scale Lock: on' : 'Scale Lock: off');
-    updateQwertyGuide();
+    stopAll();
+    const lockMsg = scaleLockEl.checked ? 'Scale Lock: on' : 'Scale Lock: off';
+    refreshQwertyLayout();
+    showStatus(`${lockMsg} • ${getOctaveStatusText()}`);
   });
 
   volEl.addEventListener('input', () => master.gain.value = parseFloat(volEl.value));
@@ -596,9 +693,11 @@
     const top = seq(HOME_KEYS);
     const bot = seq(BOTTOM_KEYS);
     const acc = seq(ACC_KEYS);
+    const topAnchor = map[HOME_KEYS[0]] || '—';
+    const bottomAnchor = map[BOTTOM_KEYS[0]] || '—';
     qwertyExamples.innerHTML = `
-      <div><strong>Top row</strong> A S D F G H J → ${top}</div>
-      <div><strong>Bottom row</strong> Z X C V B N M → ${bot}</div>
+      <div><strong>Top row</strong> A S D F G H J → ${top} (starts ${topAnchor})</div>
+      <div><strong>Bottom row</strong> Z X C V B N M → ${bot} (starts ${bottomAnchor})</div>
       <div><strong>Accidentals</strong> W E T Y U → ${acc}</div>
     `;
   }
@@ -610,18 +709,33 @@
     updateQwertyGuide();
   });
 
+  if(homeOctEl){
+    homeOctEl.addEventListener('change', ()=>{
+      const val = parseInt(homeOctEl.value, 10);
+      if(Number.isNaN(val)){
+        homeOctEl.value = String(homeOctave);
+        return;
+      }
+      setHomeOctave(val);
+    });
+  }
+
+  if(bottomOffsetEl){
+    bottomOffsetEl.addEventListener('change', ()=>{
+      const val = parseInt(bottomOffsetEl.value, 10);
+      if(Number.isNaN(val)){
+        bottomOffsetEl.value = String(bottomRowOffset);
+        return;
+      }
+      setBottomRowOffset(val);
+    });
+  }
+
+  refreshQwertyLayout();
+
   // =============================
   // QWERTY keyboard support (scale-aware + Scale Lock)
   // =============================
-  const HOME_KEYS = ['a','s','d','f','g','h','j'];       // degrees 1..7
-  const BOTTOM_KEYS = ['z','x','c','v','b','n','m'];     // lower register degrees 1..7
-  const ACC_KEYS = ['w','e','t','y','u'];                // black keys: +1,+3,+6,+8,+10
-  const ACC_OFFSETS = [1,3,6,8,10];
-  const MIDI_MIN = 36; // C2
-  const MIDI_MAX = 83; // B5
-
-  const keysDown = new Set(); // track physical keys to avoid repeat retrigger
-
   function clampToRange(midi){
     // Nudge by octaves into available range if possible
     while(midi < MIDI_MIN) midi += 12;
@@ -646,8 +760,8 @@
     // Anchors
     const anchorTopRoot = lockOn && type !== 'none' ? root : 'C';
     const anchorBotRoot = anchorTopRoot; // same root, lower octave
-    const topOct = 4;
-    const botOct = 2;
+    const topOct = homeOctave;
+    const botOct = computeBottomOctave();
 
     // Home row (degrees 1..7)
     for(let i=0;i<HOME_KEYS.length;i++){
@@ -683,6 +797,23 @@
     if(e.repeat) { /* rely on keysDown to dedupe */ }
     if(isTypingInForm(e.target)) return;
     if(e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if(k === '['){
+      e.preventDefault();
+      setHomeOctave(homeOctave - 1);
+      return;
+    }
+    if(k === ']'){
+      e.preventDefault();
+      setHomeOctave(homeOctave + 1);
+      return;
+    }
+    if(k === '\\'){
+      e.preventDefault();
+      resetRowOffsets();
+      return;
+    }
+
     const map = buildQwertyMap();
     const note = map[k];
     if(!note) return;
@@ -826,7 +957,10 @@
     setKeyActive(note, false);
   }
 
-  function stopAll(){ Array.from(active.keys()).forEach(n=>stopNote(n, true)); }
+  function stopAll(){
+    keysDown.clear();
+    Array.from(active.keys()).forEach(n=>stopNote(n, true));
+  }
 
   function releaseNormal(note){
     const d = active.get(note); if(!d) return;
