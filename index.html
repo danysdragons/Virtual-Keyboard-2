@@ -224,6 +224,7 @@
       <div style="margin:6px 0">Use [ and ] to shift the rows down or up an octave, and &#92; to jump back to the defaults.</div>
       <div style="margin:6px 0">Letters cover C2 up through C5 depending on your row offsets. Scale Lock aligns letters to your chosen key/type.</div>
       <div id="qwertyExamples" class="small" style="margin-top:8px"></div>
+      <div id="chromaticTip" class="small" style="margin-top:6px"></div>
     </div>
   </div>
 
@@ -460,6 +461,7 @@
   const toggleGuideBtn = document.getElementById('toggleGuide');
   const qwertyGuide = document.getElementById('qwertyGuide');
   const qwertyExamples = document.getElementById('qwertyExamples');
+  const chromaticTip = document.getElementById('chromaticTip');
 
   // =============================
   // QWERTY keyboard metadata & octave state
@@ -700,6 +702,11 @@
       <div><strong>Bottom row</strong> Z X C V B N M → ${bot} (starts ${bottomAnchor})</div>
       <div><strong>Accidentals</strong> W E T Y U → ${acc}</div>
     `;
+    if(chromaticTip){
+      const chromKeys = ['a','w','s','e','d','f','t','g','y','h','u','j'];
+      const chromSeq = chromKeys.map(k => map[k] || '—').join(' ');
+      chromaticTip.textContent = `Chromatic walk (A W S E D F T G Y H U J) → ${chromSeq}`;
+    }
   }
 
   toggleGuideBtn.addEventListener('click', ()=>{
