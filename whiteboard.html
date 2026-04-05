@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Random Shape Whiteboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #020617;
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 100%; padding: 24px 16px; }
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; margin-top: 4px; font-size: 0.875rem; line-height: 1.5; }
+    .subtitle kbd {
+      font-weight: 500;
+      color: #cbd5e1;
+      font-family: inherit;
+    }
+
+    .controls { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    label.slider-label { font-size: 0.875rem; color: #cbd5e1; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+
+    input[type="range"] { width: 100%; accent-color: #94a3b8; }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .grid-row label { font-size: 0.875rem; color: #cbd5e1; }
+
+    input[type="number"], select {
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid #1e293b;
+      padding: 4px 12px;
+      color: #f1f5f9;
+      font-size: 0.875rem;
+    }
+
+    .inline-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+    .inline-controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: #cbd5e1;
+      user-select: none;
+      cursor: pointer;
+    }
+    .inline-controls input[type="checkbox"] { accent-color: #e2e8f0; }
+    .inline-controls select { font-size: 0.875rem; }
+
+    button.new-board {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      transition: background 0.15s;
+    }
+    button.new-board:hover { background: #334155; }
+    button.new-board:active { background: #475569; }
+
+    .canvas-wrapper {
+      position: relative;
+      border-radius: 16px;
+      border: 1px solid #1e293b;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(15,23,42,0.4);
+      margin-top: 16px;
+    }
+    .canvas-header {
+      padding: 8px;
+      background: #0f172a;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    canvas { display: block; background: #fff; }
+
+    .alert-banner {
+      position: absolute;
+      z-index: 10;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #dc2626;
+      font-weight: 600;
+      font-size: 0.875rem;
+      background: rgba(255,255,255,0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: none;
+    }
+    .alert-banner.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Random Shape Whiteboard</h1>
+    <p class="subtitle">
+      Move the sliders to set how many shapes to place and the board size.
+      Toggle borders to outline each shape. Hit "New board" for a fresh random layout.
+      Keyboard: <kbd>N</kbd> or <kbd>Ctrl/⌘+Enter</kbd> to create a new board.
+    </p>
+
+    <div class="controls">
+      <div>
+        <label class="slider-label">Number of shapes: <span class="tabular-nums" id="countDisplay">40</span></label>
+        <input type="range" id="countSlider" min="5" max="250" value="40" />
+      </div>
+
+      <div class="grid-row">
+        <label>Width</label>
+        <input type="number" id="widthInput" min="400" max="4000" step="10" value="1600" />
+        <input type="range" id="widthSlider" min="400" max="4000" step="10" value="1600" />
+      </div>
+      <div class="grid-row">
+        <label>Height</label>
+        <input type="number" id="heightInput" min="300" max="3000" step="10" value="900" />
+        <input type="range" id="heightSlider" min="300" max="3000" step="10" value="900" />
+      </div>
+
+      <div class="grid-row">
+        <label>Alert min (s)</label>
+        <input type="number" id="alertMinInput" min="0.2" max="60" step="0.1" value="1" />
+        <input type="range" id="alertMinSlider" min="0.2" max="60" step="0.1" value="1" />
+      </div>
+      <div class="grid-row">
+        <label>Alert max (s)</label>
+        <input type="number" id="alertMaxInput" min="0.3" max="60" step="0.1" value="10" />
+        <input type="range" id="alertMaxSlider" min="0.3" max="60" step="0.1" value="10" />
+      </div>
+
+      <div class="inline-controls">
+        <label>
+          <input type="checkbox" id="borderCheck" checked />
+          <span>Add border to shapes</span>
+        </label>
+        <label>
+          <span>Grid</span>
+          <select id="gridSelect">
+            <option value="none">No grid</option>
+            <option value="square">Square grid</option>
+            <option value="hex">Hexagonal grid</option>
+          </select>
+        </label>
+      </div>
+
+      <div>
+        <button class="new-board" id="newBoardBtn">New board (N or Ctrl/⌘+Enter)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <div class="canvas-header">Canvas: <span id="canvasSize">1600×900</span></div>
+      <div class="alert-banner" id="alertBanner">Alert #<span id="alertCountDisplay">0</span></div>
+      <canvas id="board"></canvas>
+    </div>
+  </div>
+
+<script>
+// ============================================================
+// Random Shape Whiteboard — Vanilla JS + Canvas
+// ============================================================
+
+(function () {
+  "use strict";
+
+  // --- State ---
+  let count = 40;
+  let seed = Math.floor(Math.random() * 1e9);
+  let boardWidth = 1600;
+  let boardHeight = 900;
+  let showBorder = true;
+  let gridMode = "none"; // "none" | "square" | "hex"
+  let alertCount = 0;
+  let minAlertSec = 1;
+  let maxAlertSec = 10;
+  let alertTimeout = null;
+  let hideTimeout = null;
+
+  // --- Palette ---
+  const palette = [
+    "#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6",
+    "#ec4899", "#22c55e", "#06b6d4", "#eab308", "#f97316",
+  ];
+
+  // --- DOM refs ---
+  const canvas = document.getElementById("board");
+  const countSlider = document.getElementById("countSlider");
+  const countDisplay = document.getElementById("countDisplay");
+  const widthInput = document.getElementById("widthInput");
+  const widthSlider = document.getElementById("widthSlider");
+  const heightInput = document.getElementById("heightInput");
+  const heightSlider = document.getElementById("heightSlider");
+  const alertMinInput = document.getElementById("alertMinInput");
+  const alertMinSlider = document.getElementById("alertMinSlider");
+  const alertMaxInput = document.getElementById("alertMaxInput");
+  const alertMaxSlider = document.getElementById("alertMaxSlider");
+  const borderCheck = document.getElementById("borderCheck");
+  const gridSelect = document.getElementById("gridSelect");
+  const newBoardBtn = document.getElementById("newBoardBtn");
+  const canvasSizeSpan = document.getElementById("canvasSize");
+  const alertBanner = document.getElementById("alertBanner");
+  const alertCountDisplay = document.getElementById("alertCountDisplay");
+
+  // --- Helpers ---
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function mulberry32(a) {
+    return function () {
+      let t = (a += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function clampInt(v, min, max) {
+    const n = parseInt(String(v).replace(/[^0-9-]/g, ""), 10);
+    if (isNaN(n)) return min;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function clampFloat(v, min, max) {
+    const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ""));
+    if (isNaN(n)) return min;
+    return Math.max(min, Math.min(max, n));
+  }
+
+  // --- Drawing helpers ---
+  function drawCenterDot(ctx) {
+    ctx.save();
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawRegularPolygon(ctx, sides, size) {
+    const r = size / 2;
+    ctx.beginPath();
+    for (let i = 0; i < sides; i++) {
+      const a = (i / sides) * Math.PI * 2 - Math.PI / 2;
+      const x = Math.cos(a) * r;
+      const y = Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  function roundedRect(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.lineTo(x + w - rr, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    ctx.lineTo(x + rr, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+    ctx.lineTo(x, y + rr);
+    ctx.quadraticCurveTo(x, y, x + rr, y);
+    ctx.closePath();
+  }
+
+  function drawSquareGrid(ctx, w, h, grid) {
+    ctx.save();
+    ctx.strokeStyle = "#f1f5f9";
+    ctx.lineWidth = 1;
+    for (let x = grid; x < w; x += grid) {
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, 0);
+      ctx.lineTo(x + 0.5, h);
+      ctx.stroke();
+    }
+    for (let y = grid; y < h; y += grid) {
+      ctx.beginPath();
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(w, y + 0.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawHexagonPath(ctx, cx, cy, size) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI / 6 + (i * Math.PI) / 3;
+      const x = cx + Math.cos(a) * size;
+      const y = cy + Math.sin(a) * size;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  function drawHexGrid(ctx, w, h, size) {
+    ctx.save();
+    ctx.strokeStyle = "#f1f5f9";
+    ctx.lineWidth = 1;
+    const hexWidth = Math.sqrt(3) * size;
+    const vertStep = 1.5 * size;
+    for (let row = -1, y = -size; y < h + size; row++, y += vertStep) {
+      const xOffset = row % 2 === 0 ? 0 : hexWidth / 2;
+      for (let x = -hexWidth; x < w + hexWidth; x += hexWidth) {
+        drawHexagonPath(ctx, x + xOffset, y, size);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // --- Main draw ---
+  function drawBoard() {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.floor(boardWidth * dpr);
+    canvas.height = Math.floor(boardHeight * dpr);
+    canvas.style.width = boardWidth + "px";
+    canvas.style.height = boardHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const w = boardWidth;
+    const h = boardHeight;
+
+    // Background
+    ctx.save();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+
+    if (gridMode === "square") drawSquareGrid(ctx, w, h, 32);
+    else if (gridMode === "hex") drawHexGrid(ctx, w, h, 24);
+
+    // Shapes
+    const rng = mulberry32(seed);
+    const pad = 48;
+    for (let i = 0; i < count; i++) {
+      const cx = lerp(pad, w - pad, rng());
+      const cy = lerp(pad, h - pad, rng());
+      const color = palette[Math.floor(rng() * palette.length)];
+      const choice = rng();
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rng() * Math.PI * 2);
+      ctx.fillStyle = color;
+
+      if (choice < 0.25) {
+        // Circle
+        const r = lerp(12, 60, rng());
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fill();
+        if (showBorder) { ctx.lineWidth = 2; ctx.strokeStyle = "#0f172a"; ctx.stroke(); }
+        drawCenterDot(ctx);
+      } else if (choice < 0.5) {
+        // Rectangle
+        const rw = lerp(30, 120, rng());
+        const rh = lerp(20, 100, rng());
+        roundedRect(ctx, -rw / 2, -rh / 2, rw, rh, 6);
+        ctx.fill();
+        if (showBorder) { ctx.lineWidth = 2; ctx.strokeStyle = "#0f172a"; ctx.stroke(); }
+        drawCenterDot(ctx);
+      } else if (choice < 0.75) {
+        // Triangle
+        const size = lerp(40, 110, rng());
+        drawRegularPolygon(ctx, 3, size);
+        ctx.fill();
+        if (showBorder) { ctx.lineWidth = 2; ctx.strokeStyle = "#0f172a"; ctx.stroke(); }
+        drawCenterDot(ctx);
+      } else {
+        // Regular polygon 5–7 sides
+        const sides = 5 + Math.floor(rng() * 3);
+        const size = lerp(36, 96, rng());
+        drawRegularPolygon(ctx, sides, size);
+        ctx.fill();
+        if (showBorder) { ctx.lineWidth = 2; ctx.strokeStyle = "#0f172a"; ctx.stroke(); }
+        drawCenterDot(ctx);
+      }
+
+      ctx.restore();
+    }
+
+    ctx.restore();
+    canvasSizeSpan.textContent = boardWidth + "×" + boardHeight;
+  }
+
+  function newBoard() {
+    seed = Math.floor(Math.random() * 1e9);
+    drawBoard();
+  }
+
+  // --- Alert scheduler ---
+  function scheduleAlert() {
+    if (alertTimeout) clearTimeout(alertTimeout);
+    if (hideTimeout) clearTimeout(hideTimeout);
+
+    const min = Math.max(0.2, Math.min(minAlertSec, maxAlertSec));
+    const max = Math.max(min + 0.1, Math.max(minAlertSec, maxAlertSec));
+
+    function next() {
+      const delayMs = (min + Math.random() * (max - min)) * 1000;
+      alertTimeout = setTimeout(function () {
+        alertCount++;
+        alertCountDisplay.textContent = alertCount;
+        alertBanner.classList.add("visible");
+        hideTimeout = setTimeout(function () {
+          alertBanner.classList.remove("visible");
+        }, 1200);
+        next();
+      }, delayMs);
+    }
+    next();
+  }
+
+  // --- Event bindings ---
+
+  // Count slider
+  countSlider.addEventListener("input", function () {
+    count = parseInt(this.value);
+    countDisplay.textContent = count;
+    drawBoard();
+  });
+
+  // Width
+  function setWidth(v) {
+    boardWidth = clampInt(v, 400, 4000);
+    widthInput.value = boardWidth;
+    widthSlider.value = boardWidth;
+    drawBoard();
+  }
+  widthInput.addEventListener("input", function () { setWidth(this.value); });
+  widthSlider.addEventListener("input", function () { setWidth(this.value); });
+
+  // Height
+  function setHeight(v) {
+    boardHeight = clampInt(v, 300, 3000);
+    heightInput.value = boardHeight;
+    heightSlider.value = boardHeight;
+    drawBoard();
+  }
+  heightInput.addEventListener("input", function () { setHeight(this.value); });
+  heightSlider.addEventListener("input", function () { setHeight(this.value); });
+
+  // Alert min
+  function setAlertMin(v) {
+    minAlertSec = clampFloat(v, 0.2, 60);
+    alertMinInput.value = minAlertSec;
+    alertMinSlider.value = minAlertSec;
+    scheduleAlert();
+  }
+  alertMinInput.addEventListener("input", function () { setAlertMin(this.value); });
+  alertMinSlider.addEventListener("input", function () { setAlertMin(this.value); });
+
+  // Alert max
+  function setAlertMax(v) {
+    maxAlertSec = clampFloat(v, 0.3, 60);
+    alertMaxInput.value = maxAlertSec;
+    alertMaxSlider.value = maxAlertSec;
+    scheduleAlert();
+  }
+  alertMaxInput.addEventListener("input", function () { setAlertMax(this.value); });
+  alertMaxSlider.addEventListener("input", function () { setAlertMax(this.value); });
+
+  // Border checkbox
+  borderCheck.addEventListener("change", function () {
+    showBorder = this.checked;
+    drawBoard();
+  });
+
+  // Grid select
+  gridSelect.addEventListener("change", function () {
+    gridMode = this.value;
+    drawBoard();
+  });
+
+  // New board button
+  newBoardBtn.addEventListener("click", newBoard);
+
+  // Keyboard shortcut: N or Ctrl/⌘+Enter
+  window.addEventListener("keydown", function (e) {
+    const tag = (e.target && e.target.tagName) || "";
+    // Don't trigger when typing in inputs
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+    const isN = (e.key === "n" || e.key === "N") && !e.altKey && !e.metaKey && !e.ctrlKey;
+    const isCtrlEnter = e.key === "Enter" && (e.ctrlKey || e.metaKey);
+    if (isN || isCtrlEnter) {
+      e.preventDefault();
+      newBoard();
+    }
+  });
+
+  // --- Initialize ---
+  // Set generous defaults based on viewport
+  try {
+    const vw = Math.max(800, Math.min(1920, window.innerWidth - 64));
+    const vh = Math.max(500, Math.min(1080, Math.floor(window.innerHeight * 0.8)));
+    if (vw > boardWidth) { boardWidth = vw; widthInput.value = vw; widthSlider.value = vw; }
+    if (vh > boardHeight) { boardHeight = vh; heightInput.value = vh; heightSlider.value = vh; }
+  } catch (e) {}
+
+  drawBoard();
+  scheduleAlert();
+
+  // --- Dev tests ---
+  try {
+    console.groupCollapsed("WhiteboardShapesApp tests");
+
+    console.assert(lerp(0, 10, 0) === 0, "lerp t=0");
+    console.assert(lerp(0, 10, 1) === 10, "lerp t=1");
+    console.assert(lerp(5, 15, 0.5) === 10, "lerp midpoint");
+
+    var gridCanvas = document.createElement("canvas");
+    gridCanvas.width = 120; gridCanvas.height = 120;
+    var gridCtx = gridCanvas.getContext("2d");
+    if (gridCtx) {
+      drawSquareGrid(gridCtx, 120, 120, 20);
+      drawHexGrid(gridCtx, 120, 120, 12);
+    }
+
+    var r1 = mulberry32(123);
+    var r2 = mulberry32(123);
+    for (var ti = 0; ti < 5; ti++) {
+      var va = r1(), vb = r2();
+      console.assert(va === vb, "rng equality @" + ti);
+      console.assert(va >= 0 && va <= 1, "rng range @" + ti);
+    }
+
+    var tc = document.createElement("canvas");
+    tc.width = 100; tc.height = 100;
+    var tctx = tc.getContext("2d");
+    if (tctx) {
+      drawRegularPolygon(tctx, 3, 60);
+      tctx.fillStyle = "#000"; tctx.fill();
+      roundedRect(tctx, 10, 10, 40, 20, 4);
+      tctx.fill();
+      drawCenterDot(tctx);
+    }
+
+    console.groupEnd();
+  } catch (e) {
+    console.error("Tests failed:", e);
+  }
+})();
+</script>
+</body>
+</html>
