@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="bauhaus" data-theme-design>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -526,6 +526,637 @@
     .black .scale-dot{ top:6px; left:50%; transform:translateX(-50%); background:var(--scale-dot-black); box-shadow:var(--scale-dot-black-shadow); }
     /* Row icons */
     .row-icon{ font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:var(--row-icon-bg); border:1px solid var(--row-icon-border); box-shadow: var(--row-icon-shadow); }
+
+    /* Expressive themes: palettes, material treatments, and shared shape tokens. */
+    :root[data-theme="analog-workshop"]{
+      --bg: #211d19;
+      --text: #f4e6cc;
+      --muted-text: #d8c5a7;
+      --small-text: #bda98d;
+      --active: #ffc15b;
+      --panel-bg: #302e29;
+      --panel-border: #70614d;
+      --panel-shadow: 0 2px 0 #70614d;
+      --control-bg: #22231f;
+      --control-border: #70614d;
+      --control-text: #f4e6cc;
+      --control-strong-bg: #22231f;
+      --control-strong-border: #b28c51;
+      --control-strong-shadow: 0 2px 0 #70614d;
+      --kbd-wrap-bg: #302e29;
+      --kbd-wrap-border: #70614d;
+      --kbd-wrap-shadow: 0 4px 0 #70614d;
+      --banner-bg: #302e29;
+      --banner-border: #70614d;
+      --banner-text: #f4e6cc;
+      --banner-strong: #ffc15b;
+      --btn-bg: #22231f;
+      --btn-border: #b28c51;
+      --pill-border: #70614d;
+      --pill-text: #d8c5a7;
+      --log-bg: #22231f;
+      --log-border: #70614d;
+      --row-icon-bg: #22231f;
+      --row-icon-border: #70614d;
+      --row-icon-shadow: none;
+      --white-top: #eadfc5;
+      --white-bottom: #d2c3a0;
+      --white-border: #716047;
+      --white-border-bottom: #716047;
+      --white-label: #111511;
+      --white-active-top: #ffe7a6;
+      --white-active-bottom: #ffe7a6;
+      --black-top: #292a25;
+      --black-bottom: #111511;
+      --black-border: #111511;
+      --black-border-bottom: #111511;
+      --black-label: #f4e5c7;
+      --black-active-top: #292a25;
+      --black-active-bottom: #111511;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #ffc15b;
+      --scale-dot-white-shadow: 0 0 0 1px #eadfc5;
+      --scale-dot-black: #ffe7a6;
+      --scale-dot-black-shadow: 0 0 0 1px #111511;
+      --log-ok: #a8e4ac;
+      --log-fail: #ffb9a8;
+    }
+    :root[data-theme="bauhaus"]{
+      --bg: #eee9dd;
+      --text: #171918;
+      --muted-text: #343834;
+      --small-text: #55594f;
+      --active: #b62e23;
+      --panel-bg: #faf7ed;
+      --panel-border: #20231f;
+      --panel-shadow: 0 2px 0 #20231f;
+      --control-bg: #fffdf4;
+      --control-border: #20231f;
+      --control-text: #171918;
+      --control-strong-bg: #fffdf4;
+      --control-strong-border: #20231f;
+      --control-strong-shadow: 0 2px 0 #20231f;
+      --kbd-wrap-bg: #faf7ed;
+      --kbd-wrap-border: #20231f;
+      --kbd-wrap-shadow: 0 4px 0 #20231f;
+      --banner-bg: #faf7ed;
+      --banner-border: #20231f;
+      --banner-text: #171918;
+      --banner-strong: #b62e23;
+      --btn-bg: #fffdf4;
+      --btn-border: #20231f;
+      --pill-border: #20231f;
+      --pill-text: #343834;
+      --log-bg: #fffdf4;
+      --log-border: #20231f;
+      --row-icon-bg: #fffdf4;
+      --row-icon-border: #20231f;
+      --row-icon-shadow: none;
+      --white-top: #fffdf4;
+      --white-bottom: #eee9db;
+      --white-border: #514f45;
+      --white-border-bottom: #514f45;
+      --white-label: #171918;
+      --white-active-top: #ffe087;
+      --white-active-bottom: #ffe087;
+      --black-top: #292c29;
+      --black-bottom: #171918;
+      --black-border: #171918;
+      --black-border-bottom: #171918;
+      --black-label: #fffdf4;
+      --black-active-top: #292c29;
+      --black-active-bottom: #171918;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #b62e23;
+      --scale-dot-white-shadow: 0 0 0 1px #fffdf4;
+      --scale-dot-black: #ffe087;
+      --scale-dot-black-shadow: 0 0 0 1px #171918;
+      --log-ok: #285b35;
+      --log-fail: #a12629;
+    }
+    :root[data-theme="paper-ensemble"]{
+      --bg: #e7decc;
+      --text: #342e29;
+      --muted-text: #51483d;
+      --small-text: #6b5d4c;
+      --active: #a54832;
+      --panel-bg: #fcf7e9;
+      --panel-border: #ad9b80;
+      --panel-shadow: 0 2px 0 #ad9b80;
+      --control-bg: #fffaf0;
+      --control-border: #ad9b80;
+      --control-text: #342e29;
+      --control-strong-bg: #fffaf0;
+      --control-strong-border: #8c745b;
+      --control-strong-shadow: 0 2px 0 #ad9b80;
+      --kbd-wrap-bg: #fcf7e9;
+      --kbd-wrap-border: #ad9b80;
+      --kbd-wrap-shadow: 0 4px 0 #ad9b80;
+      --banner-bg: #fcf7e9;
+      --banner-border: #ad9b80;
+      --banner-text: #342e29;
+      --banner-strong: #a54832;
+      --btn-bg: #fffaf0;
+      --btn-border: #8c745b;
+      --pill-border: #ad9b80;
+      --pill-text: #51483d;
+      --log-bg: #fffaf0;
+      --log-border: #ad9b80;
+      --row-icon-bg: #fffaf0;
+      --row-icon-border: #ad9b80;
+      --row-icon-shadow: none;
+      --white-top: #fffbee;
+      --white-bottom: #e7dcc4;
+      --white-border: #837058;
+      --white-border-bottom: #837058;
+      --white-label: #2c2d29;
+      --white-active-top: #f2d8a5;
+      --white-active-bottom: #f2d8a5;
+      --black-top: #44413c;
+      --black-bottom: #2c2d29;
+      --black-border: #2c2d29;
+      --black-border-bottom: #2c2d29;
+      --black-label: #faf1db;
+      --black-active-top: #44413c;
+      --black-active-bottom: #2c2d29;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #a54832;
+      --scale-dot-white-shadow: 0 0 0 1px #fffbee;
+      --scale-dot-black: #f2d8a5;
+      --scale-dot-black-shadow: 0 0 0 1px #2c2d29;
+      --log-ok: #285b35;
+      --log-fail: #a12629;
+    }
+    :root[data-theme="blueprint"]{
+      --bg: #0a263e;
+      --text: #e0f2ff;
+      --muted-text: #bfd9ed;
+      --small-text: #a4c7df;
+      --active: #8eeaff;
+      --panel-bg: #10344e;
+      --panel-border: #7096b2;
+      --panel-shadow: 0 2px 0 #7096b2;
+      --control-bg: #0a2a43;
+      --control-border: #7096b2;
+      --control-text: #e0f2ff;
+      --control-strong-bg: #0a2a43;
+      --control-strong-border: #82b6d8;
+      --control-strong-shadow: 0 2px 0 #7096b2;
+      --kbd-wrap-bg: #10344e;
+      --kbd-wrap-border: #7096b2;
+      --kbd-wrap-shadow: 0 4px 0 #7096b2;
+      --banner-bg: #10344e;
+      --banner-border: #7096b2;
+      --banner-text: #e0f2ff;
+      --banner-strong: #8eeaff;
+      --btn-bg: #0a2a43;
+      --btn-border: #82b6d8;
+      --pill-border: #7096b2;
+      --pill-text: #bfd9ed;
+      --log-bg: #0a2a43;
+      --log-border: #7096b2;
+      --row-icon-bg: #0a2a43;
+      --row-icon-border: #7096b2;
+      --row-icon-shadow: none;
+      --white-top: #daedfa;
+      --white-bottom: #c4deee;
+      --white-border: #628ba8;
+      --white-border-bottom: #628ba8;
+      --white-label: #08263d;
+      --white-active-top: #a4eaff;
+      --white-active-bottom: #a4eaff;
+      --black-top: #113b58;
+      --black-bottom: #08263d;
+      --black-border: #08263d;
+      --black-border-bottom: #08263d;
+      --black-label: #e0f4ff;
+      --black-active-top: #113b58;
+      --black-active-bottom: #08263d;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #8eeaff;
+      --scale-dot-white-shadow: 0 0 0 1px #daedfa;
+      --scale-dot-black: #a4eaff;
+      --scale-dot-black-shadow: 0 0 0 1px #08263d;
+      --log-ok: #a8e4ac;
+      --log-fail: #ffb9a8;
+    }
+    :root[data-theme="pocket-arcade"]{
+      --bg: #c7ccbd;
+      --text: #242e37;
+      --muted-text: #35424b;
+      --small-text: #4b5861;
+      --active: #a52653;
+      --panel-bg: #e8e9d9;
+      --panel-border: #6d7c7a;
+      --panel-shadow: 0 2px 0 #6d7c7a;
+      --control-bg: #f4f1dc;
+      --control-border: #6d7c7a;
+      --control-text: #242e37;
+      --control-strong-bg: #f4f1dc;
+      --control-strong-border: #617273;
+      --control-strong-shadow: 0 2px 0 #6d7c7a;
+      --kbd-wrap-bg: #e8e9d9;
+      --kbd-wrap-border: #6d7c7a;
+      --kbd-wrap-shadow: 0 4px 0 #6d7c7a;
+      --banner-bg: #e8e9d9;
+      --banner-border: #6d7c7a;
+      --banner-text: #242e37;
+      --banner-strong: #a52653;
+      --btn-bg: #f4f1dc;
+      --btn-border: #617273;
+      --pill-border: #6d7c7a;
+      --pill-text: #35424b;
+      --log-bg: #f4f1dc;
+      --log-border: #6d7c7a;
+      --row-icon-bg: #f4f1dc;
+      --row-icon-border: #6d7c7a;
+      --row-icon-shadow: none;
+      --white-top: #fff7dc;
+      --white-bottom: #e0d6b3;
+      --white-border: #776f59;
+      --white-border-bottom: #776f59;
+      --white-label: #242935;
+      --white-active-top: #f7d98e;
+      --white-active-bottom: #f7d98e;
+      --black-top: #454954;
+      --black-bottom: #242935;
+      --black-border: #242935;
+      --black-border-bottom: #242935;
+      --black-label: #fff4d3;
+      --black-active-top: #454954;
+      --black-active-bottom: #242935;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #a52653;
+      --scale-dot-white-shadow: 0 0 0 1px #fff7dc;
+      --scale-dot-black: #f7d98e;
+      --scale-dot-black-shadow: 0 0 0 1px #242935;
+      --log-ok: #285b35;
+      --log-fail: #a12629;
+    }
+    :root[data-theme="glass-observatory"]{
+      --bg: #151d33;
+      --text: #eef4ff;
+      --muted-text: #d4e0f5;
+      --small-text: #b0c3e0;
+      --active: #b1e8ff;
+      --panel-bg: #26334d;
+      --panel-border: #6f829e;
+      --panel-shadow: 0 2px 0 #6f829e;
+      --control-bg: #202e48;
+      --control-border: #6f829e;
+      --control-text: #eef4ff;
+      --control-strong-bg: #202e48;
+      --control-strong-border: #8fa6c6;
+      --control-strong-shadow: 0 2px 0 #6f829e;
+      --kbd-wrap-bg: #26334d;
+      --kbd-wrap-border: #6f829e;
+      --kbd-wrap-shadow: 0 4px 0 #6f829e;
+      --banner-bg: #26334d;
+      --banner-border: #6f829e;
+      --banner-text: #eef4ff;
+      --banner-strong: #b1e8ff;
+      --btn-bg: #202e48;
+      --btn-border: #8fa6c6;
+      --pill-border: #6f829e;
+      --pill-text: #d4e0f5;
+      --log-bg: #202e48;
+      --log-border: #6f829e;
+      --row-icon-bg: #202e48;
+      --row-icon-border: #6f829e;
+      --row-icon-shadow: none;
+      --white-top: #f4f8ff;
+      --white-bottom: #d2dfef;
+      --white-border: #8299b5;
+      --white-border-bottom: #8299b5;
+      --white-label: #15253f;
+      --white-active-top: #d1f1ff;
+      --white-active-bottom: #d1f1ff;
+      --black-top: #233650;
+      --black-bottom: #15253f;
+      --black-border: #15253f;
+      --black-border-bottom: #15253f;
+      --black-label: #eaf5ff;
+      --black-active-top: #233650;
+      --black-active-bottom: #15253f;
+      --black-shadow: inset 0 -5px 0 #ffffff18, 0 5px 6px #00000035;
+      --scale-dot-white: #b1e8ff;
+      --scale-dot-white-shadow: 0 0 0 1px #f4f8ff;
+      --scale-dot-black: #d1f1ff;
+      --scale-dot-black-shadow: 0 0 0 1px #15253f;
+      --log-ok: #a8e4ac;
+      --log-fail: #ffb9a8;
+    }
+
+    /* These tokens only apply to the six new designs; originals keep their styling. */
+    :root[data-theme-design]{
+      --design-font: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      --design-radius: 8px;
+      --design-control-radius: 4px;
+      --design-key-radius: 4px;
+      --design-border: 1px;
+      --design-padding: 16px;
+      --design-gap: 10px;
+      --design-press: 2px;
+      --design-key-shadow: inset 0 -5px 0 #00000015;
+    }
+    :root[data-theme-design] body{
+      font-family:var(--design-font); padding:clamp(12px, 2.5vw, 36px);
+      min-height:100vh; box-sizing:border-box;
+    }
+    :root[data-theme-design] h1{
+      font-size:clamp(20px, 2.2vw, 30px); line-height:1.3;
+      max-width:1100px; margin-bottom:24px; letter-spacing:-0.5px;
+    }
+    :root[data-theme-design] .panel{
+      position:relative; border:var(--design-border) solid var(--panel-border);
+      border-radius:var(--design-radius); padding:var(--design-padding);
+      margin-top:var(--design-gap); gap:14px 22px;
+    }
+    :root[data-theme-design] .panel label{ font-size:13px; line-height:1.8; }
+    :root[data-theme-design] :is(button, select, input[type="number"]){
+      font:600 13px/1.3 var(--design-font); color:var(--control-text);
+      background:var(--control-bg); border:var(--design-border) solid var(--control-strong-border);
+      border-radius:var(--design-control-radius); padding:10px 12px;
+      box-shadow:var(--control-strong-shadow); box-sizing:border-box; max-width:100%;
+    }
+    :root[data-theme-design] option{ background:var(--control-bg); color:var(--control-text); }
+    :root[data-theme-design] input[type="number"]{ width:76px; }
+    :root[data-theme-design] button{ cursor:pointer; transition:transform 80ms, box-shadow 80ms; }
+    :root[data-theme-design] button:active{ transform:translateY(var(--design-press)); box-shadow:none; }
+    :root[data-theme-design] :is(button, select, input):focus-visible{
+      outline:3px solid var(--active); outline-offset:4px;
+    }
+    :root[data-theme-design] .mode{ flex-wrap:wrap; }
+    :root[data-theme-design] .pill{
+      border-radius:var(--design-control-radius); padding:5px 9px; line-height:1.5;
+    }
+    :root[data-theme-design] .row-icon{
+      flex-shrink:0; width:30px; height:30px; border-radius:var(--design-control-radius);
+    }
+    :root[data-theme-design] .kbd-wrap{
+      overflow-x:auto; padding:24px; border:var(--design-border) solid var(--kbd-wrap-border);
+      border-radius:var(--design-radius); margin-bottom:var(--design-gap);
+    }
+    :root[data-theme-design] .white{
+      border-radius:0 0 var(--design-key-radius) var(--design-key-radius);
+      box-shadow:var(--design-key-shadow); transition:transform 70ms, box-shadow 70ms;
+    }
+    :root[data-theme-design] .black{
+      border-radius:0 0 var(--design-key-radius) var(--design-key-radius);
+      transition:transform 70ms, box-shadow 70ms;
+    }
+    :root[data-theme-design] .white.active{
+      transform:translateY(var(--design-press)); outline-offset:-3px;
+      box-shadow:inset 0 -2px 0 #00000020;
+    }
+    :root[data-theme-design] .black.active{
+      transform:translateX(-50%) translateY(var(--design-press)); outline-offset:-3px;
+      box-shadow:inset 0 -2px 0 #ffffff30;
+    }
+    /* An outlined square distinguishes a latched note from a scale marker. */
+    :root[data-theme-design] .latched::after{
+      content:""; position:absolute; top:15px; left:50%; transform:translateX(-50%);
+      width:8px; height:8px; border:2px solid currentColor; color:var(--active);
+      background:var(--active); box-shadow:0 0 0 2px var(--white-top); pointer-events:none;
+    }
+    :root[data-theme-design] .black.latched::after{
+      color:var(--black-label); background:var(--black-label); box-shadow:0 0 0 2px var(--black-top);
+    }
+    :root[data-theme-design] .banner{ border-radius:var(--design-radius); }
+    :root[data-theme-design] #testLog{ border-radius:var(--design-control-radius); }
+    :root[data-theme-design] .ok{ color:var(--log-ok); }
+    :root[data-theme-design] .fail{ color:var(--log-fail); }
+
+    /* Styled range controls remain native keyboard-accessible inputs. */
+    :root[data-theme-design] .control-panel input[type="range"]{
+      appearance:none; -webkit-appearance:none; width:140px; height:28px;
+      padding:0; border:0; border-radius:0; background:transparent; box-shadow:none;
+      vertical-align:middle; accent-color:var(--active); cursor:pointer;
+    }
+    :root[data-theme-design] input[type="range"]::-webkit-slider-runnable-track{
+      height:6px; border-radius:var(--design-control-radius); background:var(--control-strong-border);
+    }
+    :root[data-theme-design] input[type="range"]::-moz-range-track{
+      height:6px; border-radius:var(--design-control-radius); background:var(--control-strong-border);
+    }
+    :root[data-theme-design] input[type="range"]::-webkit-slider-thumb{
+      appearance:none; -webkit-appearance:none; width:18px; height:22px; margin-top:-8px;
+      background:var(--active); border:2px solid var(--control-bg); border-radius:var(--design-control-radius);
+      box-shadow:0 1px 3px #00000050;
+    }
+    :root[data-theme-design] input[type="range"]::-moz-range-thumb{
+      width:14px; height:18px; background:var(--active); border:2px solid var(--control-bg);
+      border-radius:var(--design-control-radius); box-shadow:0 1px 3px #00000050;
+    }
+
+    /* 01 / Analog Workshop: engraved metal, walnut side cheeks, satin keys. */
+    :root[data-theme="analog-workshop"]{
+      --design-font:"Helvetica Neue", Arial, sans-serif;
+      --design-radius:6px; --design-control-radius:3px; --design-key-radius:5px;
+      --control-strong-shadow:inset 0 1px 0 #ffffff20, 0 3px 0 #11130f;
+      --panel-shadow:inset 0 1px 0 #ffffff12, 0 5px 12px #00000030;
+      --design-key-shadow:inset 0 -8px 0 #a8997340, inset 2px 0 0 #ffffff80;
+    }
+    :root[data-theme="analog-workshop"] body{
+      background-image:radial-gradient(ellipse at top, #66513a40, transparent 70%);
+    }
+    :root[data-theme="analog-workshop"] h1{
+      font-size:23px; font-weight:500; letter-spacing:1px; color:#efdbb5;
+      border-bottom:1px solid #8c734b; padding-bottom:18px;
+    }
+    :root[data-theme="analog-workshop"] .panel{
+      background-image:repeating-linear-gradient(0deg, #ffffff03 0 1px, transparent 1px 4px);
+      border-top:1px solid #8b795e;
+    }
+    :root[data-theme="analog-workshop"] .panel label{
+      font-size:12px; text-transform:uppercase; letter-spacing:0.8px; text-shadow:0 1px #000;
+    }
+    :root[data-theme="analog-workshop"] .kbd-wrap{
+      padding:26px 30px 32px; border:10px solid #63422b; border-bottom-width:16px;
+      background:linear-gradient(#151813, #30332b);
+      border-image:repeating-linear-gradient(3deg, #6b4830 0 3px, #765238 4px, #503521 8px) 10;
+      box-shadow:inset 0 5px 10px #00000090, 0 8px 16px #00000055;
+    }
+    :root[data-theme="analog-workshop"] .scale-dot{ width:6px; height:6px; }
+    :root[data-theme="analog-workshop"] .latched::after{ border-radius:50%; box-shadow:0 0 9px #ffc15b; }
+    :root[data-theme="analog-workshop"] input[type="range"]::-webkit-slider-runnable-track{
+      background:repeating-linear-gradient(90deg, #c8b184 0 1px, transparent 1px 12px), #171b15;
+    }
+    :root[data-theme="analog-workshop"] input[type="range"]::-moz-range-track{
+      background:repeating-linear-gradient(90deg, #c8b184 0 1px, transparent 1px 12px), #171b15;
+    }
+
+    /* 02 / Bauhaus: hard geometry, primary shapes, and offset ink shadows. */
+    :root[data-theme="bauhaus"]{
+      --design-radius:0px; --design-control-radius:0px; --design-key-radius:0px;
+      --design-border:2px; --design-padding:20px; --design-gap:14px;
+      --panel-shadow:5px 5px 0 #20231f; --control-strong-shadow:3px 3px 0 #20231f;
+      --kbd-wrap-shadow:7px 7px 0 #20231f; --black-shadow:none; --design-key-shadow:none;
+      --white-top:#fffdf4; --white-bottom:#fffdf4;
+    }
+    :root[data-theme="bauhaus"] h1{ font-weight:900; max-width:1000px; letter-spacing:-1px; }
+    :root[data-theme="bauhaus"] h1::before{
+      content:""; display:block; width:108px; height:24px; margin-bottom:18px;
+      background:radial-gradient(circle at 12px 12px, #c6382b 0 12px, transparent 12px),
+        linear-gradient(#2451a4, #2451a4) 42px 0 / 24px 24px no-repeat,
+        conic-gradient(from 135deg at 50% 0, transparent 0 270deg, #e8b92f 270deg) 84px 0 / 24px 24px no-repeat;
+    }
+    :root[data-theme="bauhaus"] .panel label{ font-weight:700; }
+    :root[data-theme="bauhaus"] .row-icon{ border:2px solid #20231f; border-radius:50%; background:#e8b92f; }
+    :root[data-theme="bauhaus"] #panelPlay .row-icon{ border-radius:0; background:#dbe6fa; }
+    :root[data-theme="bauhaus"] #stopAll{ background:#c6382b; color:#fffdf4; }
+    :root[data-theme="bauhaus"] .kbd-wrap{ background:#e8b92f; padding:24px 22px 28px; }
+    :root[data-theme="bauhaus"] .white{ border-width:2px; }
+    :root[data-theme="bauhaus"] .white.active{ outline-width:4px; outline-offset:-5px; }
+    :root[data-theme="bauhaus"] .scale-dot{ border-radius:0; }
+    :root[data-theme="bauhaus"] input[type="range"]::-webkit-slider-thumb{ border-radius:50%; }
+    :root[data-theme="bauhaus"] input[type="range"]::-moz-range-thumb{ border-radius:50%; }
+
+    /* 03 / Paper Ensemble: layered stock, ruled annotations, printed tabs. */
+    :root[data-theme="paper-ensemble"]{
+      --design-font:"Gill Sans", "Trebuchet MS", sans-serif;
+      --design-radius:2px; --design-control-radius:2px; --design-key-radius:1px;
+      --design-padding:20px; --design-gap:16px;
+      --panel-shadow:2px 3px 0 #d6cab1, 4px 6px 0 #f6edda, 5px 7px 0 #b6a68b;
+      --control-strong-shadow:1px 3px 0 #cbbda3;
+      --design-key-shadow:inset 0 -5px 0 #c8b99b50, 1px 2px 2px #00000015;
+    }
+    :root[data-theme="paper-ensemble"] body{
+      background-image:radial-gradient(#76654818 0.7px, transparent 0.7px); background-size:5px 5px;
+    }
+    :root[data-theme="paper-ensemble"] h1{
+      font-family:Palatino, "Palatino Linotype", Georgia, serif; font-size:30px; font-weight:500;
+      border-bottom:3px double #a28c6e; padding-bottom:18px;
+    }
+    :root[data-theme="paper-ensemble"] .panel::before{
+      content:""; position:absolute; width:52px; height:12px; top:-7px; right:28px;
+      background:#d9b56b70; border:1px solid #c8ad7750; transform:rotate(-3deg); pointer-events:none;
+    }
+    :root[data-theme="paper-ensemble"] .row-icon{ border-style:dashed; background:#eee1c4; }
+    :root[data-theme="paper-ensemble"] .kbd-wrap{
+      border:1px solid #9e8b6e; border-bottom:7px solid #c0ae8c; padding:26px;
+      box-shadow:2px 5px 7px #6b533025; background:#f4ebd7;
+    }
+    :root[data-theme="paper-ensemble"] .pill{ border-style:dashed; }
+    :root[data-theme="paper-ensemble"] .latched::after{
+      left:auto; right:5px; top:0; transform:none; width:8px; height:17px;
+      border:0; box-shadow:none; clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%);
+    }
+    :root[data-theme="paper-ensemble"] #panelHelp{
+      background-image:repeating-linear-gradient(transparent 0 27px, #ad9b801c 27px 28px);
+    }
+
+    /* 04 / Blueprint: drafting grid, registration corners, technical typography. */
+    :root[data-theme="blueprint"]{
+      --design-font:"SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --design-radius:0px; --design-control-radius:0px; --design-key-radius:0px;
+      --design-press:1px; --panel-shadow:none; --control-strong-shadow:none;
+      --kbd-wrap-shadow:none; --black-shadow:none; --design-key-shadow:none;
+    }
+    :root[data-theme="blueprint"] body{
+      background-image:linear-gradient(#91cbef0a 1px, transparent 1px), linear-gradient(90deg, #91cbef0a 1px, transparent 1px),
+        linear-gradient(#91cbef12 1px, transparent 1px), linear-gradient(90deg, #91cbef12 1px, transparent 1px);
+      background-size:20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+    :root[data-theme="blueprint"] h1{ font-size:21px; font-weight:500; letter-spacing:0; }
+    :root[data-theme="blueprint"] .panel{ background:#10344eef; }
+    :root[data-theme="blueprint"] .panel::before{
+      content:""; position:absolute; inset:4px; pointer-events:none;
+      background:linear-gradient(#9cc8e3, #9cc8e3) left top / 9px 1px no-repeat,
+        linear-gradient(#9cc8e3, #9cc8e3) left top / 1px 9px no-repeat,
+        linear-gradient(#9cc8e3, #9cc8e3) right bottom / 9px 1px no-repeat,
+        linear-gradient(#9cc8e3, #9cc8e3) right bottom / 1px 9px no-repeat;
+    }
+    :root[data-theme="blueprint"] .row-icon{ border-style:dashed; }
+    :root[data-theme="blueprint"] .kbd-wrap{ border-style:dashed; background:#0c2c45; }
+    :root[data-theme="blueprint"] .white{ border-bottom-width:1px; background:var(--white-top); }
+    :root[data-theme="blueprint"] .white:nth-child(7n + 1){ border-left:2px solid #224b67; }
+    :root[data-theme="blueprint"] .white.active{ background:var(--white-active-top); }
+    :root[data-theme="blueprint"] .scale-dot{ background:transparent; border:1px solid var(--scale-dot-white); box-sizing:border-box; }
+    :root[data-theme="blueprint"] .black .scale-dot{ border-color:var(--scale-dot-black); }
+    :root[data-theme="blueprint"] .latched::after{ border-radius:50%; }
+    :root[data-theme="blueprint"] #panelSound::after,
+    :root[data-theme="blueprint"] #panelPlay::after,
+    :root[data-theme="blueprint"] #panelGuide::after{
+      position:absolute; right:10px; top:0; transform:translateY(-50%);
+      padding:0 6px; font-size:9px; letter-spacing:1px; background:#0a263e; color:#b6d7ed;
+    }
+    :root[data-theme="blueprint"] #panelSound::after{ content:"01 / SOUND"; }
+    :root[data-theme="blueprint"] #panelPlay::after{ content:"02 / PLAY"; }
+    :root[data-theme="blueprint"] #panelGuide::after{ content:"03 / SCALE"; }
+
+    /* 05 / Pocket Arcade: moulded plastic, inset display, stepped button edges. */
+    :root[data-theme="pocket-arcade"]{
+      --design-font:"Trebuchet MS", sans-serif;
+      --design-radius:16px; --design-control-radius:5px; --design-key-radius:7px;
+      --design-border:2px; --design-padding:18px; --design-gap:14px; --design-press:3px;
+      --panel-shadow:inset 0 3px 0 #ffffffb0, 0 5px 0 #7a8986;
+      --control-strong-shadow:inset 0 2px 0 #ffffff90, 0 4px 0 #65736e;
+      --design-key-shadow:inset 0 -9px 0 #a69e7f70;
+    }
+    :root[data-theme="pocket-arcade"] body{
+      border:8px solid #8b9891; border-radius:26px; box-shadow:inset 0 3px 0 #edf0d9;
+    }
+    :root[data-theme="pocket-arcade"] h1{
+      font-family:"Courier New", monospace; font-size:22px; font-weight:900;
+      text-transform:uppercase; letter-spacing:1px; padding-right:50px;
+      background:repeating-linear-gradient(90deg, #5b6967 0 3px, transparent 3px 7px) right center / 40px 20px no-repeat;
+    }
+    :root[data-theme="pocket-arcade"] #status{
+      background:#c9d4b1; color:#283b2c; font-family:"Courier New", monospace;
+      border:2px solid #87947e; padding:8px 12px; box-shadow:inset 0 2px 3px #293b2c35;
+    }
+    :root[data-theme="pocket-arcade"] #status:empty{ display:none; }
+    :root[data-theme="pocket-arcade"] #stopAll{ background:#a52653; color:#fff7dc; border-color:#772241; }
+    :root[data-theme="pocket-arcade"] .row-icon{ border-radius:50%; background:#d7ddbd; }
+    :root[data-theme="pocket-arcade"] .kbd-wrap{
+      background:#687973; border:5px solid #96a299; padding:22px 22px 30px;
+      box-shadow:inset 0 5px 0 #465852, 0 5px 0 #7a8986;
+    }
+    :root[data-theme="pocket-arcade"] .scale-dot{ border-radius:1px; width:7px; height:7px; }
+    :root[data-theme="pocket-arcade"] .latched::after{ width:6px; height:6px; box-shadow:0 0 0 2px #fff7dc, 0 0 7px #a52653; }
+
+    /* 06 / Glass Observatory: static atmosphere, frosted surfaces, edge lighting. */
+    :root[data-theme="glass-observatory"]{
+      --design-radius:22px; --design-control-radius:12px; --design-key-radius:7px;
+      --design-padding:22px; --design-gap:16px;
+      --panel-bg:#26334de8; --panel-border:#a9c6ed66;
+      --panel-shadow:inset 0 1px 0 #ffffff28, 0 12px 30px #040c2335;
+      --control-strong-shadow:inset 0 1px 0 #ffffff25, 0 3px 9px #00000020;
+      --kbd-wrap-shadow:inset 0 1px 0 #ffffff45, 0 18px 40px #030c284d;
+      --design-key-shadow:inset 0 -5px 0 #9bb5d450, inset 2px 0 0 #ffffffa0;
+    }
+    :root[data-theme="glass-observatory"] body{
+      background-image:radial-gradient(ellipse at 12% 0, #6382bd66, transparent 55%),
+        radial-gradient(ellipse at 95% 55%, #477b8a66, transparent 55%), linear-gradient(135deg, #151d33, #242441);
+    }
+    :root[data-theme="glass-observatory"] h1{ font-weight:400; letter-spacing:0.2px; }
+    :root[data-theme="glass-observatory"] .panel{
+      -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    }
+    :root[data-theme="glass-observatory"] .panel label{ letter-spacing:0.3px; }
+    :root[data-theme="glass-observatory"] .row-icon{ border-radius:50%; background:#8baed52b; }
+    :root[data-theme="glass-observatory"] .kbd-wrap{
+      background:linear-gradient(135deg, #c0ddff26, #9dd6f00d); padding:28px;
+    }
+    :root[data-theme="glass-observatory"] .white.active{
+      box-shadow:inset 0 0 0 2px #70c6ed, inset 0 -5px 0 #9ac4df;
+    }
+    :root[data-theme="glass-observatory"] .black.active{ box-shadow:inset 0 0 0 2px #b1e8ff, 0 0 8px #b1e8ff70; }
+    :root[data-theme="glass-observatory"] .latched::after{ border-radius:50%; box-shadow:0 0 8px #b1e8ff; }
+
+    @media (max-width:600px){
+      :root[data-theme-design]{ --design-padding:14px; }
+      :root[data-theme-design] .panel{ gap:12px; }
+      :root[data-theme-design] .panel label{ max-width:100%; }
+      :root[data-theme-design] select{ min-width:0; }
+      :root[data-theme-design] .kbd-wrap{ padding:18px; }
+      :root[data-theme="pocket-arcade"] body{ border-width:4px; border-radius:16px; }
+    }
+    @media (prefers-reduced-motion:reduce){
+      :root[data-theme-design]{ --design-press:0px; }
+      :root[data-theme-design] :is(button, .white, .black){ transition:none; }
+    }
   </style>
   <!-- NOTE: We load soundfont-player and WebAudioFont dynamically via CDN with readiness checks. -->
 </head>
@@ -585,7 +1216,13 @@
 
     <label>Theme
       <select id="themeSelect" title="Change the UI theme">
-        <option value="midnight" selected>Midnight</option>
+        <option value="analog-workshop">Analog Workshop</option>
+        <option value="bauhaus" selected>Bauhaus</option>
+        <option value="paper-ensemble">Paper Ensemble</option>
+        <option value="blueprint">Blueprint</option>
+        <option value="pocket-arcade">Pocket Arcade</option>
+        <option value="glass-observatory">Glass Observatory</option>
+        <option value="midnight">Midnight</option>
         <option value="solarized-dark">Solarized Dark</option>
         <option value="solarized-light">Solarized Light</option>
         <option value="studio">Studio</option>
@@ -922,7 +1559,13 @@
   // Theme support
   // =============================
   const THEME_STORAGE_KEY = 'vk_theme';
+  const DEFAULT_THEME = 'bauhaus';
+  const DESIGN_THEMES = new Set([
+    'analog-workshop', 'bauhaus', 'paper-ensemble',
+    'blueprint', 'pocket-arcade', 'glass-observatory'
+  ]);
   const THEME_OPTIONS = new Set([
+    ...DESIGN_THEMES,
     'midnight',
     'solarized-dark',
     'solarized-light',
@@ -934,15 +1577,16 @@
   ]);
 
   function applyTheme(next, persist=true){
-    const theme = THEME_OPTIONS.has(next) ? next : 'midnight';
+    const theme = THEME_OPTIONS.has(next) ? next : DEFAULT_THEME;
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.toggleAttribute('data-theme-design', DESIGN_THEMES.has(theme));
     if(themeSelect) themeSelect.value = theme;
     if(persist){
       try{ localStorage.setItem(THEME_STORAGE_KEY, theme); }catch(_){ }
     }
   }
 
-  let savedTheme = 'midnight';
+  let savedTheme = DEFAULT_THEME;
   try{
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     if(storedTheme) savedTheme = storedTheme;
@@ -1359,7 +2003,10 @@
   const LATCH_KEEPALIVE_MS = 2600; // refire interval to keep latched notes audible (sf/waf)
 
   function setKeyActive(note, on){
-    keyboard.querySelectorAll(`[data-note="${note}"]`).forEach(k=>k.classList.toggle('active', !!on));
+    keyboard.querySelectorAll(`[data-note="${note}"]`).forEach(k=>{
+      k.classList.toggle('active', !!on);
+      k.classList.toggle('latched', !!on && mode === 'latch');
+    });
   }
 
   function startNote(note){

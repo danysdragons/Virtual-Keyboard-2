@@ -1,8 +1,9 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Publish the standalone HTML application on every push to main.
+# Keep this as the sole Pages workflow: this repository has no Next.js build.
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # No path filters: documentation and workflow pushes also republish the site.
   push:
     branches: ["main"]
 
@@ -24,6 +25,7 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

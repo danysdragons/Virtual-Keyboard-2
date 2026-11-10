@@ -1,19 +1,19 @@
-Virtual Keyboard — 3 Octaves, Modes, Instruments
+Virtual Keyboard — 4 Octaves, Modes, Instruments
 
 Overview
-- Three-octave, clickable and keyboard‑driven piano implemented in a single HTML file: `virtual_keyboard_two_octaves_modes_instruments.html`.
+- Four-octave, clickable and keyboard‑driven piano implemented in a single HTML file: `index.html`.
 - Two play modes: Normal and Latch sustain.
 - Multiple sound engines: SoundFont, WebAudioFont, and Pure Tones (oscillator) with graceful fallbacks.
 - Scale guide with unobtrusive key markers and scale‑aware QWERTY mappings.
 - Built‑in diagnostics: self‑test suite and a fallback banner for troubleshooting.
 
 Quick Start
-- Open `virtual_keyboard_two_octaves_modes_instruments.html` in a modern browser (Chrome, Edge, Firefox, Safari).
+- Open `index.html` in a modern browser (Chrome, Edge, Firefox, Safari).
 - Click anywhere in the page to allow audio (browsers require a user gesture to start Web Audio).
 - Play notes by clicking the keys or using your computer keyboard.
 
 Features
-- Three Octaves: C3 through B5 with labeled white/black keys.
+- Four Octaves: C2 through B5 with labeled white/black keys.
 - Play Modes:
   - Normal: click rings for a configurable length; holding sustains while held.
   - Latch Sustain: click a key to start, click again to stop. Monophonic by design (new note replaces the old one).
@@ -37,6 +37,7 @@ Features
 
 Controls
 - Sound Source: choose sampled instruments (SoundFont / WebAudioFont) or Pure Tones.
+- Theme: choose a visual design; your selection is saved locally when browser storage is available.
 - Volume: master output level.
 - Stop All: immediately silences all active/latched notes and clears keep‑alives.
 - Mode: Normal or Latch sustain.
@@ -47,6 +48,18 @@ Controls
 - Scale Type: None, Major, Minor.
 - Scale Key: C, C#, …, B.
 - Scale Lock: when enabled, letter keys map to scale degrees for the selected scale.
+
+Themes
+- New themes appear first: Analog Workshop, Bauhaus, Paper Ensemble, Blueprint, Pocket Arcade, and Glass Observatory.
+- Bauhaus is the default for new sessions without a saved preference. Existing saved themes are respected; missing or invalid preferences fall back to Bauhaus.
+- Analog Workshop: walnut surround, engraved-style labels, bevelled controls, and satin keys.
+- Bauhaus: square panels, primary-colour geometric details, bold typography, and offset shadows.
+- Paper Ensemble: layered paper cards, serif heading, tape details, and bookmark-style latch indicators.
+- Blueprint: drafting grid, registration corners, monospace labels, and outlined scale markers.
+- Pocket Arcade: moulded casing, inset status display, chunky buttons, and square scale LEDs.
+- Glass Observatory: static atmospheric gradients, frosted panels, spacious controls, and illuminated key edges.
+- The original Midnight, Solarized Dark, Solarized Light, Studio, Cobalt, Forest, Sunset, and Paper themes remain available after the new designs.
+- New themes use local font stacks and CSS materials without additional downloads. Their key/button motion respects reduced-motion preferences. On narrow screens, the keyboard scrolls horizontally within its surround.
 
 QWERTY Mapping
 - Home row (`A S D F G H J`) plays scale degrees 1–7 starting at your chosen Home Row Octave (defaults to C4); tweak it in the control panel or tap `[` / `]` to shift down/up quickly.
@@ -70,7 +83,7 @@ Latch Behavior Details
 - Latch is monophonic by default: starting another note in latch mode replaces the current one.
 
 How to Use Locally
-- No build step required. Just open `virtual_keyboard_two_octaves_modes_instruments.html`.
+- No build step required. Just open `index.html`.
 - Network access:
   - Sampled engines load libraries/presets from CDNs. If offline or blocked, the app automatically falls back to Pure Tones and shows a banner.
   - You can still use the on‑page engine buttons to retry SoundFont or WebAudioFont when network conditions improve.
@@ -87,8 +100,13 @@ Accessibility
 - Clear focus indicators on interactive controls.
 - Descriptive `aria-label` on the keyboard region.
 
+Publishing
+- GitHub Pages: https://danysdragons.github.io/Virtual-Keyboard-2/
+- Every push to `main` automatically republishes the site through `.github/workflows/static.yml`, including documentation-only changes. The workflow can also be run manually from GitHub Actions.
+- Deployments use the static HTML directly; no Next.js or package installation is required.
+
 File Layout
-- Main app: `virtual_keyboard_two_octaves_modes_instruments.html`
+- Main app: `index.html`
 - Notes and rationale: `dev-notes.md`
 
 Implementation Notes
